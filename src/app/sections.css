@@ -1,0 +1,87 @@
+/* Scroll virtuale a schede (vedi ScrollSections.tsx). */
+
+.sections {
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.section {
+  position: absolute;
+  inset: 0;
+  height: 100dvh;
+  overflow: hidden;
+  transform-origin: center center;
+  will-change: transform, border-radius;
+  background-color: var(--menu-bg);
+  /* Stato iniziale SSR-safe = "sotto/in attesa" (prima che parta GSAP, che poi
+     possiede transform e border-radius). La prima sezione è la corrente. */
+  transform: translateY(100%) scale(0.9);
+  border-radius: 48px;
+}
+
+.sections > .section:first-child {
+  transform: translateY(0) scale(1);
+  border-radius: 0;
+}
+
+/* Layer della parallasse: sovradimensionato oltre la sezione (overhang 60px
+   sopra/sotto) così lo sfalsamento non scopre mai i bordi; l'eccedenza è
+   ritagliata da .section (overflow: hidden). Il contenuto riempie tutto. */
+.section__inner {
+  position: absolute;
+  top: -60px;
+  bottom: -60px;
+  left: 0;
+  right: 0;
+  will-change: transform;
+}
+
+.section__inner > * {
+  height: 100%;
+}
+
+/* --- Card placeholder (contenuto demo temporaneo delle sezioni) --- */
+.demo-card {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5em;
+}
+
+.demo-card__inner {
+  text-align: center;
+  max-width: 42ch;
+}
+
+.demo-card__eyebrow {
+  display: block;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  opacity: 0.6;
+  margin-bottom: 1em;
+}
+
+/* Numerone di stato: rende evidente quale scheda è a schermo e quanto si muove. */
+.demo-card__num {
+  display: block;
+  font-family: "Haffer XH", Arial, sans-serif;
+  font-size: calc(14vw + 14dvh);
+  line-height: 0.85;
+  font-weight: 400;
+}
+
+.demo-card__title {
+  font-family: "Haffer XH", Arial, sans-serif;
+  font-size: calc(3vw + 3dvh);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-weight: 400;
+  margin: 0 0 0.3em;
+}
+
+.demo-card__text {
+  font-size: 1.125em;
+  opacity: 0.85;
+}
