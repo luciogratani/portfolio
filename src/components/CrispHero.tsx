@@ -12,35 +12,58 @@ import { CustomEase } from "gsap/CustomEase";
 
 // Immagini reali del portfolio (in /public/hero). IMAGES[0] è quella che scala
 // a schermo pieno a fine loader ed è la prima slide → conviene sia ad alta ris.
+// `title` = testo mostrato nella textbox in basso per ogni slide (si aggiorna a
+// ogni cambio). Immagini e titoli sono PLACEHOLDER: da customizzare.
 const IMAGES = [
-  { src: "/hero/imgi_1_cover.jpg", alt: "Immagine hero 1" },
-  { src: "/hero/imgi_2_cover.jpg", alt: "Immagine hero 2" },
-  { src: "/hero/imgi_5_cover.jpg", alt: "Immagine hero 3" },
-  { src: "/hero/imgi_6_cover.jpg", alt: "Immagine hero 4" },
-  { src: "/hero/imgi_7_cover.jpg", alt: "Immagine hero 5" },
-  { src: "/hero/imgi_8_cover.jpg", alt: "Immagine hero 6" },
-  { src: "/hero/imgi_9_cover.jpg", alt: "Immagine hero 7" },
+  { src: "/hero/imgi_1_cover.jpg", alt: "Immagine hero 1", title: "Titolo hero 1" },
+  { src: "/hero/imgi_2_cover.jpg", alt: "Immagine hero 2", title: "Titolo hero 2" },
+  { src: "/hero/imgi_5_cover.jpg", alt: "Immagine hero 3", title: "Titolo hero 3" },
+  { src: "/hero/imgi_6_cover.jpg", alt: "Immagine hero 4", title: "Titolo hero 4" },
+  { src: "/hero/imgi_7_cover.jpg", alt: "Immagine hero 5", title: "Titolo hero 5" },
 ];
 
-// Striscia del loader: come nell'originale Osmo, è una ROTAZIONE dell'ordine
-// delle slide che porta IMAGES[0] (l'immagine che scala a schermo pieno) al
-// centro esatto della striscia, così coincide con la prima slide dello slideshow.
+// Il pen Osmo è tarato ESATTAMENTE per 5 immagini: con 5, lo slot della striscia
+// che a fine spazzata cade al centro del viewport (quindi scala a schermo pieno =
+// "diventa hero") è quello centrale, indice 2 — come nell'originale, dove
+// `is--scaling` è sul 3° dei 5 elementi. La spazzata ha ampiezza fissa
+// (xPercent ±500): con un numero di immagini diverso da 5 il centro si sfasa.
+// NON cambiare il numero di immagini senza ritarare questo valore.
+const LOADER_CENTER = 2;
 const HERO_IMG = IMAGES[0];
-const LOADER_ORDER = (() => {
-  const mid = Math.floor(IMAGES.length / 2); // indice centrale
-  return [...IMAGES.slice(IMAGES.length - mid), ...IMAGES.slice(0, IMAGES.length - mid)];
-})();
+// Ruota l'ordine della striscia così che HERO_IMG (= IMAGES[0] = prima slide)
+// capiti nello slot centrale: l'immagine che scala a schermo pieno coincide
+// quindi con la prima slide dello slideshow.
+const LOADER_ORDER = IMAGES.map(
+  (_, i) =>
+    IMAGES[(((i - LOADER_CENTER) % IMAGES.length) + IMAGES.length) % IMAGES.length],
+);
+
+// Autoplay dello slideshow: intervallo tra un avanzamento e il successivo. La
+// transizione "wipe" dura 1.5s, quindi ogni slide resta ferma ~3.5s. Attivo solo
+// quando l'hero è la sezione a fuoco e il menu è chiuso (vedi `autoplayActive`).
+const AUTOPLAY_MS = 5000;
 
 /**
  * Crisp Loading Animation — port del pen Osmo (https://osmo.supply/).
  * Fa da loader (a durata fissa, "fake") e poi diventa lo slideshow-hero.
  * Chiama `onLoaded` a fine timeline: è l'aggancio che sblocca il menu.
  */
-export default function CrispHero({ onLoaded }: { onLoaded?: () => void }) {
+export default function CrispHero({
+  onLoaded,
+  autoplayActive = false,
+}: {
+  onLoaded?: () => void;
+  autoplayActive?: boolean;
+}) {
   const rootRef = useRef<HTMLElement>(null);
   const onLoadedRef = useRef(onLoaded);
+  // Stato "autoplay attivo" letto dal timer (che vive nell'effect a mount unico).
+  const autoplayActiveRef = useRef(autoplayActive);
+  // Esposto dall'effect: azzera e fa ripartire il timer da un intervallo pieno.
+  const restartAutoplayRef = useRef<(() => void) | null>(null);
   useEffect(() => {
     onLoadedRef.current = onLoaded;
+    autoplayActiveRef.current = autoplayActive;
   });
 
   useEffect(() => {
@@ -107,10 +130,20 @@ export default function CrispHero({ onLoaded }: { onLoaded?: () => void }) {
     }
 
     if (isScaleUp.length) {
+      // La media finale deve combaciare col box REALE dell'hero attivo, non col
+      // viewport: `.crisp-header` è dentro `.section__inner` (sovradimensionato
+      // di ±60px per la parallasse dello scroll), quindi è alto 100dvh+120px.
+      // Scalando a 100vw/100dvh come nell'originale si finiva 120px più piccoli
+      // dello slide dello slideshow → salto secco all'handoff. Misuro il box e
+      // scalo esattamente a quello: object-fit cover identico, nessuno scatto.
       tl.fromTo(
         isScaleUp,
         { width: "10em", height: "10em" },
-        { width: "100vw", height: "100dvh", duration: 2 },
+        {
+          width: () => container.offsetWidth,
+          height: () => container.offsetHeight,
+          duration: 2,
+        },
         "< 0.5",
       );
     }
@@ -158,6 +191,9 @@ export default function CrispHero({ onLoaded }: { onLoaded?: () => void }) {
     const thumbs = Array.from(
       container.querySelectorAll<HTMLElement>('[data-slideshow="thumb"]'),
     );
+    const titleEl = container.querySelector<HTMLElement>(
+      '[data-slideshow="title"]',
+    );
 
     let current = 0;
     const length = slides.length;
@@ -169,6 +205,7 @@ export default function CrispHero({ onLoaded }: { onLoaded?: () => void }) {
     thumbs.forEach((thumb, i) => thumb.setAttribute("data-index", String(i)));
     slides[current]?.classList.add("is--current");
     thumbs[current]?.classList.add("is--current");
+    if (titleEl) titleEl.textContent = IMAGES[current].title;
 
     function navigate(direction: number, targetIndex: number | null = null) {
       if (animating) return;
@@ -197,6 +234,7 @@ export default function CrispHero({ onLoaded }: { onLoaded?: () => void }) {
           upcomingSlide.classList.add("is--current");
           thumbs[previous].classList.remove("is--current");
           thumbs[current].classList.add("is--current");
+          if (titleEl) titleEl.textContent = IMAGES[current].title;
         },
         onComplete() {
           currentSlide.classList.remove("is--current");
@@ -211,6 +249,22 @@ export default function CrispHero({ onLoaded }: { onLoaded?: () => void }) {
       slideshowTimelines.push(stl);
     }
 
+    /* ---------- Autoplay ---------- */
+    // Un solo intervallo, sempre vivo; a ogni tick avanza SOLO se l'hero è a
+    // fuoco (autoplayActiveRef) e non c'è già una transizione in corso.
+    // `restartAutoplay` lo azzera: lo si richiama sull'interazione manuale e
+    // quando l'hero torna a fuoco, così il conteggio riparte pieno.
+    let autoplayTimer: ReturnType<typeof setInterval> | undefined;
+    const restartAutoplay = () => {
+      clearInterval(autoplayTimer);
+      autoplayTimer = setInterval(() => {
+        if (!autoplayActiveRef.current || animating) return;
+        navigate(1);
+      }, AUTOPLAY_MS);
+    };
+    restartAutoplayRef.current = restartAutoplay;
+    restartAutoplay();
+
     const thumbHandlers: Array<[HTMLElement, (e: Event) => void]> = [];
     thumbs.forEach((thumb) => {
       const handler = (event: Event) => {
@@ -221,6 +275,7 @@ export default function CrispHero({ onLoaded }: { onLoaded?: () => void }) {
         if (targetIndex === current || animating) return;
         const direction = targetIndex > current ? 1 : -1;
         navigate(direction, targetIndex);
+        restartAutoplay(); // click spontaneo → il timer riparte da zero
       };
       thumb.addEventListener("click", handler);
       thumbHandlers.push([thumb, handler]);
@@ -229,6 +284,8 @@ export default function CrispHero({ onLoaded }: { onLoaded?: () => void }) {
     /* ---------- Cleanup (anche per il doppio-mount di StrictMode in dev) ---------- */
     return () => {
       tl.kill();
+      clearInterval(autoplayTimer);
+      restartAutoplayRef.current = null;
       slideshowTimelines.forEach((t) => t.kill());
       split?.revert();
       thumbHandlers.forEach(([thumb, handler]) =>
@@ -242,6 +299,12 @@ export default function CrispHero({ onLoaded }: { onLoaded?: () => void }) {
       container.classList.add("is--loading", "is--hidden");
     };
   }, []);
+
+  // Quando l'hero torna "a fuoco" (autoplayActive true) riparte il conteggio da
+  // un intervallo pieno, così non avanza subito per tempo residuo accumulato.
+  useEffect(() => {
+    if (autoplayActive) restartAutoplayRef.current?.();
+  }, [autoplayActive]);
 
   return (
     <section
@@ -320,15 +383,10 @@ export default function CrispHero({ onLoaded }: { onLoaded?: () => void }) {
               </div>
             ))}
           </div>
-          <p className="crisp-header__p">
-            Crisp Loading Animation by{" "}
-            <a
-              href="https://www.osmo.supply?utm_source=codepen&utm_medium=pen&utm_campaign=crisp-loading-animation"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Osmo
-            </a>
+          {/* Ex textbox attribuzione Osmo, riusata come titolo per-slide: il
+              testo lo aggiorna il JS a ogni cambio (init + navigate). */}
+          <p className="crisp-header__p" data-slideshow="title">
+            {IMAGES[0].title}
           </p>
         </div>
       </div>

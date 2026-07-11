@@ -21,6 +21,9 @@ export default function UnderlayNav() {
   const [loaded, setLoaded] = useState(false);
   // Menu aperto → lo scroll a schede è disabilitato.
   const [menuOpen, setMenuOpen] = useState(false);
+  // Sezione dello scroll attualmente a schermo (0 = hero). Serve per attivare
+  // l'autoplay dello slideshow solo quando l'hero è quella "a fuoco".
+  const [currentSection, setCurrentSection] = useState(0);
   // True mentre è in corso uno step di scroll → il toggle menu è bloccato.
   const scrollLockedRef = useRef(false);
 
@@ -371,8 +374,12 @@ export default function UnderlayNav() {
           onLockChange={(l) => {
             scrollLockedRef.current = l;
           }}
+          onCurrentChange={setCurrentSection}
         >
-          <CrispHero onLoaded={() => setLoaded(true)} />
+          <CrispHero
+            onLoaded={() => setLoaded(true)}
+            autoplayActive={loaded && currentSection === 0 && !menuOpen}
+          />
 
           <div className="demo-card" style={{ background: "#dc2626", color: "#fff" }}>
             <div className="demo-card__inner">

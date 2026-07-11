@@ -53,10 +53,16 @@ function resting(pos: number): RestState {
 type Props = {
   enabled: boolean;
   onLockChange?: (locked: boolean) => void;
+  onCurrentChange?: (index: number) => void;
   children: React.ReactNode;
 };
 
-export default function ScrollSections({ enabled, onLockChange, children }: Props) {
+export default function ScrollSections({
+  enabled,
+  onLockChange,
+  onCurrentChange,
+  children,
+}: Props) {
   const items = Children.toArray(children);
   const count = items.length;
 
@@ -68,6 +74,7 @@ export default function ScrollSections({ enabled, onLockChange, children }: Prop
   const lockedRef = useRef(false);
   const enabledRef = useRef(enabled);
   const onLockRef = useRef(onLockChange);
+  const onCurrentRef = useRef(onCurrentChange);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
 
   useEffect(() => {
@@ -76,6 +83,7 @@ export default function ScrollSections({ enabled, onLockChange, children }: Prop
   }, [enabled]);
   useEffect(() => {
     onLockRef.current = onLockChange;
+    onCurrentRef.current = onCurrentChange;
   });
 
   // Stato iniziale coerente con current = 0 (senza animazione).
@@ -125,6 +133,7 @@ export default function ScrollSections({ enabled, onLockChange, children }: Prop
       onLockRef.current?.(true);
       currentRef.current = next;
       setCurrent(next);
+      onCurrentRef.current?.(next);
 
       tlRef.current?.kill();
       const tl = gsap.timeline({
