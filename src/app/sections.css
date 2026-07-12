@@ -129,3 +129,54 @@
   will-change: opacity, filter, transform;
   container-type: size;
 }
+
+/* Caption in basso-centro che nomina il progetto nel monitor (vedi ScreenCard).
+   Sta sopra la parte bassa della foto (grigio/scuro), non sullo sfondo chiaro
+   della sezione: testo chiaro + leggera ombra per leggibilità. */
+.screen-card__caption {
+  position: absolute;
+  left: 50%;
+  bottom: 2.4em;
+  transform: translateX(-50%);
+  z-index: 5;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  white-space: nowrap;
+  font-size: 1.125em;
+  text-align: center;
+  color: #f4f4f4;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+}
+
+/* Anti-clipping del reveal per-parola mascherato, come .crisp-header__p > * :
+   evita che le maschere taglino allunghi/accenti durante il "rullo". */
+.screen-card__caption-name > * {
+  margin: -0.1em -0.05em;
+  padding: 0.1em 0.05em;
+}
+
+.screen-card__caption-link {
+  /* Rispetta la nota "non modificare il cursore": niente switch a pointer
+     (batte la regola globale `a { cursor: pointer }`). Affordance = underline +
+     freccia + hover. */
+  cursor: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+  opacity: 0.92;
+  transition: opacity 0.3s ease;
+}
+.screen-card__caption-link:hover {
+  opacity: 1;
+}
+.screen-card__caption-link > span {
+  transition: transform 0.3s ease;
+}
+.screen-card__caption-link:hover > span {
+  transform: translateX(0.15em);
+}

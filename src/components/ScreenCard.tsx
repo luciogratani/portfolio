@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import gsap from "gsap";
+import { SplitText } from "gsap/SplitText";
 import DemoSite from "./DemoSite";
 
 /**
@@ -17,6 +19,8 @@ import DemoSite from "./DemoSite";
 export default function ScreenCard({ active }: { active: boolean }) {
   const screenRef = useRef<HTMLDivElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const captionNameRef = useRef<HTMLSpanElement>(null);
+  const captionLinkRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     const screen = screenRef.current;
@@ -63,6 +67,46 @@ export default function ScreenCard({ active }: { active: boolean }) {
     };
   }, [active]);
 
+  // Caption in basso che "nomina" il progetto mostrato nel monitor: reveal
+  // per-parola mascherato (stesso trucco dell'hero via SplitText) quando la card
+  // entra a fuoco, con il link "Visit demo" che compare subito dopo. Da card non
+  // attiva resta nascosta, così l'intro si rigioca a ogni rientro (come il
+  // power-on dello schermo).
+  useEffect(() => {
+    const name = captionNameRef.current;
+    const link = captionLinkRef.current;
+    if (!name || !link) return;
+
+    gsap.registerPlugin(SplitText);
+
+    if (!active) {
+      gsap.set([name, link], { opacity: 0 });
+      return;
+    }
+
+    const split = new SplitText(name, { type: "words", mask: "words" });
+    gsap.set(name, { opacity: 1 });
+    gsap.set(split.words, { yPercent: 110 });
+    gsap.set(link, { opacity: 0, y: 12 });
+
+    const tl = gsap.timeline({ delay: 0.25 });
+    tl.to(split.words, {
+      yPercent: 0,
+      stagger: 0.06,
+      ease: "expo.out",
+      duration: 0.7,
+    }).to(
+      link,
+      { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+      "-=0.25",
+    );
+
+    return () => {
+      tl.kill();
+      split.revert();
+    };
+  }, [active]);
+
   return (
     <div className="screen-card">
       <div className="screen-card__stage">
@@ -77,6 +121,20 @@ export default function ScreenCard({ active }: { active: boolean }) {
           <DemoSite active={active} />
         </div>
       </div>
+
+      <p className="screen-card__caption">
+        <span className="screen-card__caption-name" ref={captionNameRef}>
+          GiGi — Modern e-commerce template
+        </span>
+        <Link
+          href="/projects/gigi"
+          className="screen-card__caption-link"
+          ref={captionLinkRef}
+        >
+          Visit demo
+          <span aria-hidden="true">&rarr;</span>
+        </Link>
+      </p>
     </div>
   );
 }

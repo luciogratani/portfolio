@@ -5,12 +5,18 @@
 // interferirebbe col proprio sistema di sizing/layout.
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { demoSans, demoMono } from "@/fonts/demo-site-fonts";
 
 // Larghezza di design del layout fisso (vedi demo-site.css): serve per
 // calcolare lo scale factor in JS.
 const DESIGN_W = 1600;
+
+// Il finto sito è un teaser: ogni suo elemento cliccabile (logo, link nav, CTA)
+// porta all'esperienza reale su questa route.
+const PROJECT_ROUTE = "/projects/gigi";
 
 /**
  * DemoSite — ricostruzione leggera e "congelata" (nessuno scroll interno)
@@ -29,6 +35,12 @@ const DESIGN_W = 1600;
  * (si attiva quando ScreenCard fa il power-on dello schermo).
  */
 export default function DemoSite({ active }: { active: boolean }) {
+  const router = useRouter();
+  // Navigazione SPA verso l'esperienza reale. Usata da tutti i CTA/link della
+  // nav; il logo è un <Link> (prefetch). Il guard sui click a schermo spento è
+  // il pointer-events sul root più sotto.
+  const openProject = () => router.push(PROJECT_ROUTE);
+
   const rootRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const line1Ref = useRef<HTMLSpanElement>(null);
@@ -133,8 +145,8 @@ export default function DemoSite({ active }: { active: boolean }) {
 
     // Valori in px di design: vengono rimpiccioliti dal transform: scale()
     // del root (--demo-scale), quindi restano proporzionati a schermo.
-    const CAN_SHIFT = 26;
-    const TEXT_SHIFT = 14;
+    const CAN_SHIFT = 28;
+    const TEXT_SHIFT = 8;
 
     let idleTimer: ReturnType<typeof setTimeout>;
 
@@ -191,6 +203,14 @@ export default function DemoSite({ active }: { active: boolean }) {
     <div
       ref={rootRef}
       className={`demo-site ${demoSans.variable} ${demoMono.variable}`}
+      /* Nota 1: l'intero screen è un teaser cliccabile → route reale. È un
+         <div> (non <a>/<button>), quindi NON attiva il cursore pointer globale:
+         il comportamento del cursore resta invariato. I CTA/nav interni hanno
+         il loro onClick ma vanno alla stessa route: il bubbling qui è innocuo. */
+      onClick={openProject}
+      /* Interattivo solo a schermo acceso: da spento (opacity 0) i clickable
+         non devono catturare click "fantasma". */
+      style={{ pointerEvents: active ? "auto" : "none" }}
     >
       {/* Sfondo: bianco + gradiente lime tenue + noise + due blob sfocati */}
       <div className="absolute inset-0 bg-white" />
@@ -202,12 +222,12 @@ export default function DemoSite({ active }: { active: boolean }) {
       {/* Nav */}
       <nav className="relative z-20 w-full">
         <div className="max-w-[1280px] mx-auto px-12 py-10 flex items-center justify-between">
-          <a href="#" className="flex items-center gap-2">
+          <Link href={PROJECT_ROUTE} className="flex items-center gap-2">
             <span className="demo-logo text-2xl font-black tracking-tighter">
               <span className="text-[#121212]">Gi</span>
               <span className="demo-logo-glow text-[#AFFF00]">Gi</span>
             </span>
-          </a>
+          </Link>
 
           <div className="flex items-center gap-8">
             {["Home", "Flavours", "Creators", "Distributors", "Careers"].map(
@@ -215,6 +235,7 @@ export default function DemoSite({ active }: { active: boolean }) {
                 <button
                   key={item}
                   type="button"
+                  onClick={openProject}
                   className="demo-nav-link relative text-base font-medium tracking-wide text-[#121212]/80 hover:text-[#121212] hover:scale-110 active:scale-95 transition-transform"
                 >
                   {item}
@@ -226,6 +247,7 @@ export default function DemoSite({ active }: { active: boolean }) {
 
           <button
             type="button"
+            onClick={openProject}
             className="demo-nav-cta relative overflow-hidden bg-[#AFFF00] text-[#121212] px-6 py-2.5 rounded-full font-bold text-sm tracking-wide active:scale-95"
           >
             <span className="demo-nav-cta__shine absolute inset-0" />
@@ -269,6 +291,7 @@ export default function DemoSite({ active }: { active: boolean }) {
               <div ref={ctaRowRef} className="flex flex-wrap gap-3 pt-2">
                 <button
                   type="button"
+                  onClick={openProject}
                   className="group relative overflow-hidden bg-[#AFFF00] text-[#121212] px-6 py-3 rounded-full font-bold text-sm tracking-wide flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-transform"
                 >
                   <span className="absolute inset-0 -translate-x-full group-hover:translate-x-[200%] transition-transform duration-500 ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
@@ -289,6 +312,7 @@ export default function DemoSite({ active }: { active: boolean }) {
                 </button>
                 <button
                   type="button"
+                  onClick={openProject}
                   className="demo-cta-outline border-2 border-[#121212] text-[#121212] px-6 py-3 rounded-full font-bold text-sm tracking-wide hover:scale-[1.02] active:scale-[0.98] hover:bg-[#121212] hover:text-white transition-[transform,background-color,color] duration-300"
                 >
                   Explore Flavours
