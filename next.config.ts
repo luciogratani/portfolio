@@ -8,6 +8,15 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "cdn.prod.website-files.com",
       },
+      // Immagini prodotto della demo SFCC (/projects/sfcc), host sandbox Salesforce.
+      {
+        protocol: "https",
+        hostname: "edge.disstg.commercecloud.salesforce.com",
+      },
+      {
+        protocol: "https",
+        hostname: "zylq-002.dx.commercecloud.salesforce.com",
+      },
     ],
   },
 };

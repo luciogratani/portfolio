@@ -3,3 +3,42 @@
 /* Gli stili di base della pagina (body, font, cursore, sfondo) sono definiti in
    underlay-nav.css, importato dopo questo file nel layout: così il pen ha
    l'ultima parola sul body senza conflitti con default che coprirebbero lo sfondo. */
+
+/* --- Tema della route /projects/sfcc (demo e-commerce). In Tailwind v4 @theme
+   e @utility sono globali: questi token abilitano le utility usate SOLO dai
+   componenti sfcc (bg-background/text-foreground/p-sides/base-grid/h-fold…), che
+   il portfolio non usa. Valori (light) ripresi da app/globals.css del template;
+   HSL nel formato "H S% L%" avvolti in hsl(). --top-spacing è il valore desktop
+   (md), unico contesto in cui è usato (sidebar nascosta su mobile). --- */
+@theme {
+  --color-background: hsl(223.81 0% 94%);
+  --color-foreground: hsl(223.81 0% 4%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(223.81 0% 4%);
+  --color-primary: hsl(223.81 0% 9%);
+  --color-primary-foreground: hsl(223.81 0% 98%);
+  --color-secondary: hsl(223.81 0% 96%);
+  --color-secondary-foreground: hsl(223.81 0% 9%);
+  --color-muted: hsl(223.81 0% 88%);
+  --color-muted-foreground: hsl(223.81 0% 45%);
+  --color-accent: hsl(223.81 0% 90%);
+  --color-accent-foreground: hsl(223.81 0% 9%);
+  --color-destructive: hsl(357.18 100% 45%);
+  --color-border: hsl(223.81 0% 74%);
+  --color-input: hsl(223.81 0% 90%);
+  --color-ring: hsl(223.81 0% 63%);
+
+  --spacing-sides: 24px;
+  --spacing-modal-sides: 16px;
+  --spacing-top-spacing: 144px;
+  --spacing-fold: 100svh;
+}
+
+@utility base-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--spacing-sides);
+}
+@utility base-gap {
+  gap: var(--spacing-sides);
+}

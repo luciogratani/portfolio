@@ -1,0 +1,12 @@
+/* Stili scoped alla route /projects/sfcc. I token tema (colori) e le utility
+   custom (sides/base-grid/fold/top-spacing) sono dichiarati in globals.css via
+   @theme/@utility (in Tailwind v4 sono globali); qui teniamo solo ciò che è
+   scoped al wrapper .sfcc-root: font e sfondo/testo di base della pagina. */
+.sfcc-root {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  min-height: 100vh;
+}
