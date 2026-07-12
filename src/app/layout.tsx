@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./underlay-nav.css";
-import "./crisp-hero.css";
-import "./sections.css";
-import "./demo-site.css";
 
+// Root layout: tiene solo ciò che è davvero globale (Tailwind via globals.css)
+// e la shell <html>/<body>. Le import CSS specifiche del portfolio stanno nel
+// route group (portfolio) — vedi src/app/(portfolio)/layout.tsx — così NON
+// caricano su /projects/gigi, che ha scroll (Lenis) e regole tutte sue.
 export const metadata: Metadata = {
   title: "Portfolio",
   description: "Portfolio — demo interattive",

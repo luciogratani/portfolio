@@ -1,0 +1,9 @@
+/* Stili scoped alla route /projects/gigi. Il route group (portfolio) non carica
+   qui, quindi non c'è nulla da neutralizzare: definiamo solo i font (le custom
+   property lette dalle utility core di Tailwind v4 .font-sans/.font-mono) sul
+   wrapper .gigi-root, come fa demo-site.css per il monitor. */
+.gigi-root {
+  --font-sans: var(--font-demo-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-demo-mono), ui-monospace, "SFMono-Regular", monospace;
+  font-family: var(--font-sans);
+}
