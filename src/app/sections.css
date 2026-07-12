@@ -85,3 +85,47 @@
   font-size: 1.125em;
   opacity: 0.85;
 }
+
+/* --- Card 2: monitor con "sito" custom nello schermo (vedi ScreenCard.tsx) --- */
+.screen-card {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  /* container per dimensionare lo stage a "cover" con unità cq */
+  container-type: size;
+}
+
+/* Stage: rettangolo con l'aspect dell'immagine (6000×4510), scalato a coprire
+   la card (come object-fit:cover) e centrato. Ogni figlio in % resta così
+   incollato all'immagine a qualsiasi risoluzione, senza JS. */
+.screen-card__stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100cqw, 100cqh * 1.330377);
+  height: max(100cqh, 100cqw * 0.751667);
+}
+
+.screen-card__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Schermo: coordinate ufficiali dal vettoriale Studio Display.
+   Container per scalare dentro il futuro componente sito con unità cq. */
+.screen-card__screen {
+  position: absolute;
+  left: 19.70%;
+  top: 21.58%;
+  width: 61.52%;
+  height: 46.02%;
+  overflow: hidden;
+  transform-origin: center;
+  will-change: opacity, filter, transform;
+  container-type: size;
+}

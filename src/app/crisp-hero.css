@@ -218,6 +218,14 @@ main:has(.crisp-header.is--loading) {
   font-size: 1.125em;
 }
 
+/* Titolo per-slide: stesso trucco anti-clipping della maschera dell'h1, così
+   allunghi/accenti non vengono tagliati dal "rullo" per-parola. Prima dello
+   split (nessun figlio elemento) non seleziona nulla. */
+.crisp-header__p > * {
+  margin: -0.1em -0.05em;
+  padding: 0.1em 0.05em;
+}
+
 .crisp-header__slider {
   grid-column-gap: 1rem;
   grid-row-gap: 1rem;

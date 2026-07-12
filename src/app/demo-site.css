@@ -1,0 +1,275 @@
+/* DemoSite — hero + nav "GiGi" ricostruiti dentro lo schermo di ScreenCard.
+   Riferimento: repo/modern-gen-z-energy-drink-landing-page-.../components/
+   hero-section.tsx + navigation.tsx (framer-motion) — qui portati a Tailwind
+   utilities + GSAP (solo ingresso) + CSS @keyframes (loop infiniti). */
+
+/* Box fisso 1600×900 (16:9), scalato per riempire esattamente il box
+   schermo (.screen-card__screen). `scale()` richiede un numero unitless, che
+   non è ricavabile in CSS puro da un'unità container-query (una lunghezza
+   come `100cqw / 1600` non è un numero valido per scale()): lo scale factor
+   viene quindi calcolato in JS (vedi useEffect con ResizeObserver in
+   DemoSite.tsx) e scritto nella custom property --demo-scale. */
+.demo-site {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1600px;
+  height: 900px;
+  overflow: hidden;
+  transform-origin: top left;
+  transform: scale(var(--demo-scale, 1));
+  display: flex;
+  flex-direction: column;
+
+  /* Font scoped al componente: le variabili --font-demo-* arrivano dalle
+     classi .variable di next/font/google (vedi src/fonts/demo-site-fonts.ts).
+     Ridefinendo qui --font-sans/--font-mono (le custom property lette dalle
+     utility core di Tailwind v4 .font-sans/.font-mono) l'override resta
+     scoped a questo sottoalbero via cascata CSS, senza toccare il body
+     globale né richiedere un blocco @theme in globals.css. */
+  --font-sans: var(--font-demo-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-demo-mono), ui-monospace, "SFMono-Regular", monospace;
+  font-family: var(--font-sans);
+}
+
+/* underlay-nav.css forza globalmente un cursore custom via `cursor: url(...)`
+   su a/button (vedi righe 8-17 di quel file): qui lo sovrascriviamo scoped
+   al demo con un cursore pointer standard, più leggibile dentro il finto
+   sito nello schermo. */
+.demo-site a,
+.demo-site button {
+  cursor: pointer;
+}
+
+/* ---------- Noise overlay (grain), come .noise-overlay del riferimento ---------- */
+.demo-noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  animation: demo-grain 8s steps(10) infinite;
+}
+
+@keyframes demo-grain {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-5%, -10%);
+  }
+  30% {
+    transform: translate(3%, -15%);
+  }
+  50% {
+    transform: translate(12%, 9%);
+  }
+  70% {
+    transform: translate(9%, 4%);
+  }
+  90% {
+    transform: translate(-1%, 7%);
+  }
+}
+
+/* ---------- Blob di sfondo ---------- */
+@keyframes demo-blob-1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(30px, -20px) scale(1.1);
+  }
+}
+.demo-blob-1 {
+  animation: demo-blob-1 8s ease-in-out infinite;
+}
+
+@keyframes demo-blob-2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-40px, 30px) scale(1.2);
+  }
+}
+.demo-blob-2 {
+  animation: demo-blob-2 10s ease-in-out infinite;
+}
+
+/* ---------- Nav: logo glow ---------- */
+@keyframes demo-logo-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 10px rgba(175, 255, 0, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(175, 255, 0, 0.8);
+  }
+}
+.demo-logo-glow {
+  animation: demo-logo-glow 2s ease-in-out infinite;
+}
+.demo-logo:hover {
+  transform: scale(1.05);
+}
+.demo-logo {
+  display: inline-block;
+  transition: transform 0.2s ease-out;
+}
+
+/* ---------- Nav: link underline on hover ---------- */
+.demo-nav-link:hover .demo-nav-link__underline {
+  transform: scaleX(1);
+}
+.demo-nav-link__underline {
+  transition: transform 0.3s cubic-bezier(0.25, 0.4, 0.25, 1);
+}
+
+/* ---------- Nav: CTA "Get 25% Off" — glow loop + shine sweep loop ---------- */
+@keyframes demo-cta-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(175, 255, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(175, 255, 0, 0.6);
+  }
+}
+.demo-nav-cta {
+  animation: demo-cta-glow 2s ease-in-out infinite;
+}
+/* Hover scoped (batte lo scope globale `a, button` di underlay-nav.css) e
+   separato dal glow: quest'ultimo anima solo box-shadow, qui solo transform,
+   quindi le due animazioni coesistono senza conflitti. */
+.demo-site .demo-nav-cta {
+  transition: transform 0.2s ease-out;
+}
+.demo-site .demo-nav-cta:hover {
+  transform: scale(1.06);
+}
+
+@keyframes demo-cta-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  40% {
+    transform: translateX(200%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+.demo-nav-cta__shine {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: demo-cta-shine 5s linear infinite;
+}
+
+/* ---------- CTA outline "Explore Flavours" — hover leggibile ----------
+   underlay-nav.css definisce globalmente `a, button { color: inherit; }`
+   (righe 14-19): questa regola element-level batte in cascata l'utility
+   Tailwind `hover:text-white`, lasciando il testo scuro sullo sfondo scuro
+   in hover. Le regole scoped `.demo-site .demo-cta-outline` hanno
+   specificità maggiore (0,2,0 vs 0,0,1) e vincono senza bisogno di
+   `!important`. */
+.demo-site .demo-cta-outline {
+  color: #121212;
+}
+.demo-site .demo-cta-outline:hover {
+  background-color: #121212;
+  color: #fff;
+  border-color: #121212;
+}
+
+/* ---------- Badge: pallino lime pulsante ---------- */
+@keyframes demo-badge-dot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+}
+.demo-badge-dot {
+  animation: demo-badge-dot 2s ease-in-out infinite;
+}
+
+/* ---------- Lattina: float+rotate loop + glow pulsante ---------- */
+@keyframes demo-can-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(2deg);
+  }
+}
+.demo-can-float {
+  animation: demo-can-float 6s ease-in-out infinite;
+}
+
+@keyframes demo-can-glow {
+  0%,
+  100% {
+    transform: scale(0.75);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
+}
+.demo-can-glow {
+  animation: demo-can-glow 4s ease-in-out infinite;
+}
+
+/* Mentre il puntatore è in movimento (classe toggled dal useEffect di
+   parallasse in DemoSite.tsx) mettiamo in pausa float e glow "ambientali"
+   della lattina, per non farli sommare ai tween GSAP di parallasse/scala.
+   Riprendono 1s dopo l'ultimo movimento del mouse. */
+.demo-site.is-pointer-active .demo-can-float,
+.demo-site.is-pointer-active .demo-can-glow {
+  animation-play-state: paused;
+}
+
+/* ---------- Mouse-scroll indicator ---------- */
+@keyframes demo-mouse-bounce {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 8px);
+  }
+}
+.demo-mouse-bounce {
+  animation: demo-mouse-bounce 2s ease-in-out infinite;
+}
+
+@keyframes demo-mouse-dot {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 0.5;
+  }
+}
+.demo-mouse-dot {
+  animation: demo-mouse-dot 2s ease-in-out infinite;
+}

@@ -205,7 +205,44 @@ export default function CrispHero({
     thumbs.forEach((thumb, i) => thumb.setAttribute("data-index", String(i)));
     slides[current]?.classList.add("is--current");
     thumbs[current]?.classList.add("is--current");
-    if (titleEl) titleEl.textContent = IMAGES[current].title;
+
+    // Titolo iniziale: split a maschera per-parola, pronto per il "rullo". Le
+    // parole restano a yPercent 0 (visibili): l'ingresso iniziale lo fa già il
+    // fade del loader (opacity su .crisp-header__p tra gli smallElements).
+    let titleSplit: SplitText | undefined;
+    if (titleEl) {
+      titleEl.textContent = IMAGES[current].title;
+      titleSplit = new SplitText(titleEl, { type: "words", mask: "words" });
+    }
+    // Rullo del titolo — stessa tecnica dell'h1: le parole uscenti salgono e
+    // spariscono sotto la maschera, poi il nuovo testo (ri-split) entra dal
+    // basso in expo.out. Durata totale ~1s: sta comoda dentro il wipe da 1.5s.
+    const rollTitle = (text: string) => {
+      if (!titleEl) return;
+      const enter = () => {
+        titleSplit?.revert();
+        titleEl.textContent = text;
+        titleSplit = new SplitText(titleEl, { type: "words", mask: "words" });
+        gsap.set(titleSplit.words, { yPercent: 110 });
+        gsap.to(titleSplit.words, {
+          yPercent: 0,
+          stagger: 0.05,
+          ease: "expo.out",
+          duration: 0.6,
+        });
+      };
+      if (titleSplit && titleSplit.words.length) {
+        gsap.to(titleSplit.words, {
+          yPercent: -110,
+          stagger: 0.03,
+          ease: "power2.in",
+          duration: 0.4,
+          onComplete: enter,
+        });
+      } else {
+        enter();
+      }
+    };
 
     function navigate(direction: number, targetIndex: number | null = null) {
       if (animating) return;
@@ -234,7 +271,7 @@ export default function CrispHero({
           upcomingSlide.classList.add("is--current");
           thumbs[previous].classList.remove("is--current");
           thumbs[current].classList.add("is--current");
-          if (titleEl) titleEl.textContent = IMAGES[current].title;
+          rollTitle(IMAGES[current].title);
         },
         onComplete() {
           currentSlide.classList.remove("is--current");
@@ -288,6 +325,10 @@ export default function CrispHero({
       restartAutoplayRef.current = null;
       slideshowTimelines.forEach((t) => t.kill());
       split?.revert();
+      if (titleSplit) {
+        gsap.killTweensOf(titleSplit.words); // evita che `enter` scatti post-unmount
+        titleSplit.revert();
+      }
       thumbHandlers.forEach(([thumb, handler]) =>
         thumb.removeEventListener("click", handler),
       );

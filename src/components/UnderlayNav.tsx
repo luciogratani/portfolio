@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { CustomEase } from "gsap/CustomEase";
 import CrispHero from "./CrispHero";
+import ScreenCard from "./ScreenCard";
 import ScrollSections from "./ScrollSections";
 
 /**
@@ -26,6 +27,9 @@ export default function UnderlayNav() {
   const [currentSection, setCurrentSection] = useState(0);
   // True mentre è in corso uno step di scroll → il toggle menu è bloccato.
   const scrollLockedRef = useRef(false);
+  // Versione in state dello stesso lock: serve a far partire effetti (es. il
+  // power-on di ScreenCard) solo a transizione conclusa, non allo start dello step.
+  const [scrollLocked, setScrollLocked] = useState(false);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -373,6 +377,7 @@ export default function UnderlayNav() {
           enabled={loaded && !menuOpen}
           onLockChange={(l) => {
             scrollLockedRef.current = l;
+            setScrollLocked(l);
           }}
           onCurrentChange={setCurrentSection}
         >
@@ -381,12 +386,7 @@ export default function UnderlayNav() {
             autoplayActive={loaded && currentSection === 0 && !menuOpen}
           />
 
-          <div className="demo-card" style={{ background: "#dc2626", color: "#fff" }}>
-            <div className="demo-card__inner">
-              <span className="demo-card__num">2</span>
-              <h2 className="demo-card__title">Progetti</h2>
-            </div>
-          </div>
+          <ScreenCard active={currentSection === 1 && !scrollLocked} />
 
           <div className="demo-card" style={{ background: "#16a34a", color: "#fff" }}>
             <div className="demo-card__inner">
