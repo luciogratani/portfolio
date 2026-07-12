@@ -136,7 +136,10 @@
 .screen-card__caption {
   position: absolute;
   left: 50%;
-  bottom: 2.4em;
+  /* .section__inner sborda di 60px sotto il viewport (overhang parallasse) e
+     .section lo ritaglia: senza tener conto di quei 60px la caption finisce
+     nella fascia tagliata. Quindi 60px + margine visibile. */
+  bottom: calc(60px + 3.5em);
   transform: translateX(-50%);
   z-index: 5;
   margin: 0;
@@ -158,10 +161,9 @@
 }
 
 .screen-card__caption-link {
-  /* Rispetta la nota "non modificare il cursore": niente switch a pointer
-     (batte la regola globale `a { cursor: pointer }`). Affordance = underline +
+  /* È un link cliccabile: lascia il cursore pointer custom globale (regola
+     `a { cursor: url(...) pointer }`). Affordance anche visiva: underline +
      freccia + hover. */
-  cursor: inherit;
   display: inline-flex;
   align-items: center;
   gap: 0.3em;
