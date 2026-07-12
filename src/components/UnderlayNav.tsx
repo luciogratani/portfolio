@@ -6,6 +6,7 @@ import { CustomEase } from "gsap/CustomEase";
 import CrispHero from "./CrispHero";
 import ScreenCard from "./ScreenCard";
 import ScrollSections from "./ScrollSections";
+import { peekReturn, clearReturn, saveCurrentSection } from "@/lib/return-nav";
 
 /**
  * Fixed Underlay Navigation — port del pen Osmo (https://osmo.supply/)
@@ -30,6 +31,20 @@ export default function UnderlayNav() {
   // Versione in state dello stesso lock: serve a far partire effetti (es. il
   // power-on di ScreenCard) solo a transizione conclusa, non allo start dello step.
   const [scrollLocked, setScrollLocked] = useState(false);
+
+  // Rientro da un progetto (vedi src/lib/return-nav): l'indice della scheda a cui
+  // tornare saltando hero + intro, o null per un accesso fresco/reload. Deciso
+  // UNA volta al mount con una lettura pura (nessun effetto sul markup → nessun
+  // mismatch di hydration); il flag one-shot viene consumato subito dopo.
+  const [returnSection] = useState<number | null>(() => peekReturn());
+  useEffect(() => {
+    clearReturn();
+  }, []);
+  // Traccia di continuo la sezione corrente, così un link-progetto sa a quale
+  // scheda far tornare.
+  useEffect(() => {
+    saveCurrentSection(currentSection);
+  }, [currentSection]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -375,6 +390,7 @@ export default function UnderlayNav() {
       <main data-main>
         <ScrollSections
           enabled={loaded && !menuOpen}
+          initialIndex={returnSection ?? 0}
           onLockChange={(l) => {
             scrollLockedRef.current = l;
             setScrollLocked(l);
@@ -384,6 +400,7 @@ export default function UnderlayNav() {
           <CrispHero
             onLoaded={() => setLoaded(true)}
             autoplayActive={loaded && currentSection === 0 && !menuOpen}
+            skipIntro={returnSection != null}
           />
 
           <ScreenCard active={currentSection === 1 && !scrollLocked} />

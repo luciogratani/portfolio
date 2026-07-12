@@ -5,6 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import DemoSite from "./DemoSite";
+import { markReturnFromProject } from "@/lib/return-nav";
 
 /**
  * Card 2 — un monitor (Studio Display) il cui schermo ospiterà un componente
@@ -128,6 +129,7 @@ export default function ScreenCard({ active }: { active: boolean }) {
         </span>
         <Link
           href="/projects/gigi"
+          onClick={markReturnFromProject}
           className="screen-card__caption-link"
           ref={captionLinkRef}
         >

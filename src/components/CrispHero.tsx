@@ -51,9 +51,11 @@ const AUTOPLAY_MS = 5000;
 export default function CrispHero({
   onLoaded,
   autoplayActive = false,
+  skipIntro = false,
 }: {
   onLoaded?: () => void;
   autoplayActive?: boolean;
+  skipIntro?: boolean;
 }) {
   const rootRef = useRef<HTMLElement>(null);
   const onLoadedRef = useRef(onLoaded);
@@ -61,6 +63,9 @@ export default function CrispHero({
   const autoplayActiveRef = useRef(autoplayActive);
   // Esposto dall'effect: azzera e fa ripartire il timer da un intervallo pieno.
   const restartAutoplayRef = useRef<(() => void) | null>(null);
+  // Rientro da un progetto: salta l'intro del loader e va diretto allo stato
+  // finale (vedi tl.progress(1) nell'effect). Stabile dal primo render.
+  const skipIntroRef = useRef(skipIntro);
   useEffect(() => {
     onLoadedRef.current = onLoaded;
     autoplayActiveRef.current = autoplayActive;
@@ -180,6 +185,14 @@ export default function CrispHero({
       undefined,
       "+=0.45",
     );
+
+    // Skip intro (rientro da un progetto): porta la timeline del loader diretta
+    // alla fine — stato "pronto" senza animazione — così `onLoaded` scatta subito
+    // (dal .call qui sopra) e non si vede l'intro. L'hero è comunque dietro la
+    // scheda ripristinata, quindi visivamente il salto è impercettibile.
+    if (skipIntroRef.current) {
+      tl.progress(1);
+    }
 
     /* ---------- Slideshow ---------- */
     const slides = Array.from(

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { demoSans, demoMono } from "@/fonts/demo-site-fonts";
+import { markReturnFromProject } from "@/lib/return-nav";
 
 // Larghezza di design del layout fisso (vedi demo-site.css): serve per
 // calcolare lo scale factor in JS.
@@ -39,7 +40,12 @@ export default function DemoSite({ active }: { active: boolean }) {
   // Navigazione SPA verso l'esperienza reale. Usata da tutti i CTA/link della
   // nav; il logo è un <Link> (prefetch). Il guard sui click a schermo spento è
   // il pointer-events sul root più sotto.
-  const openProject = () => router.push(PROJECT_ROUTE);
+  const openProject = () => {
+    // Marca il ritorno così il tasto "indietro" riporta a questa scheda saltando
+    // hero + intro (vedi src/lib/return-nav e UnderlayNav).
+    markReturnFromProject();
+    router.push(PROJECT_ROUTE);
+  };
 
   const rootRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
@@ -222,7 +228,11 @@ export default function DemoSite({ active }: { active: boolean }) {
       {/* Nav */}
       <nav className="relative z-20 w-full">
         <div className="max-w-[1280px] mx-auto px-12 py-10 flex items-center justify-between">
-          <Link href={PROJECT_ROUTE} className="flex items-center gap-2">
+          <Link
+            href={PROJECT_ROUTE}
+            onClick={markReturnFromProject}
+            className="flex items-center gap-2"
+          >
             <span className="demo-logo text-2xl font-black tracking-tighter">
               <span className="text-[#121212]">Gi</span>
               <span className="demo-logo-glow text-[#AFFF00]">Gi</span>
