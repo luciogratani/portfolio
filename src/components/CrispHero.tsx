@@ -423,7 +423,9 @@ export default function CrispHero({
 
       <div className="crisp-header__content">
         <div className="crisp-header__center">
+          {/*
           <h1 className="crisp-header__h1">We just love pixels</h1>
+          */}
         </div>
         <div className="crisp-header__bottom">
           <div className="crisp-header__slider-nav">

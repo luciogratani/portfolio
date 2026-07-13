@@ -3,7 +3,9 @@ import { cn } from "@/lib/sfcc/utils";
 import { Product } from "@/lib/sfcc/types";
 import { AddToCart } from "./add-to-cart";
 import { Suspense } from "react";
-import Link from "next/link";
+
+// NB: i titoli erano <Link href={/product/{handle}}>; la demo non ha pagine
+// prodotto (route unica), quindi restano testo statico. L'add-to-cart funziona.
 
 export function FeaturedProductLabel({
   product,
@@ -27,12 +29,9 @@ export function FeaturedProductLabel({
             Best Seller
           </Badge>
         </div>
-        <Link
-          href={`/product/${product.handle}`}
-          className="col-span-1 text-2xl font-semibold self-start"
-        >
+        <p className="col-span-1 text-2xl font-semibold self-start">
           {product.title}
-        </Link>
+        </p>
         <div className="col-span-1 mb-10">
           <p className="italic text-sm font-medium mb-3">
             {product.tags.join(". ")}
@@ -61,12 +60,9 @@ export function FeaturedProductLabel({
       )}
     >
       <div className="leading-4 pr-6">
-        <Link
-          href={`/product/${product.handle}`}
-          className="inline-flex text-base font-semibold opacity-80 mb-1.5"
-        >
+        <p className="inline-flex text-base font-semibold opacity-80 mb-1.5">
           {product.title}
-        </Link>
+        </p>
         <p className="text-base font-semibold">
           ${Number(product.priceRange.minVariantPrice.amount)}
         </p>

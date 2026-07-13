@@ -10,3 +10,30 @@
   color: var(--color-foreground);
   min-height: 100vh;
 }
+
+/* ---------- Entrance al mount della route (self-entrance, come gigi/demo 1):
+   l'header scende, il contenuto sale in fade. I keyframe terminano su
+   `transform: none` (NON translateY(0)): così a riposo nessun antenato resta
+   trasformato — cruciale perché la home ha un badge `position: fixed` che, sotto
+   un antenato con transform, verrebbe agganciato al wrapper invece del viewport.
+   `both` = niente flash prima dell'avvio (tiene lo stato iniziale nel delay). */
+@keyframes sfcc-enter-down {
+  from { opacity: 0; transform: translateY(-80px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes sfcc-enter-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: none; }
+}
+.sfcc-root .sfcc-enter-header {
+  animation: sfcc-enter-down 0.7s cubic-bezier(0.25, 0.4, 0.25, 1) both;
+}
+.sfcc-root .sfcc-enter-content {
+  animation: sfcc-enter-up 0.8s cubic-bezier(0.25, 0.4, 0.25, 1) 0.12s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sfcc-root .sfcc-enter-header,
+  .sfcc-root .sfcc-enter-content {
+    animation: none;
+  }
+}

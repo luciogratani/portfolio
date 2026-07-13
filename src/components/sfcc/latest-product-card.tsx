@@ -2,7 +2,10 @@ import { cn } from "@/lib/sfcc/utils";
 import Image from "next/image";
 import { FeaturedProductLabel } from "./featured-product-label";
 import { Product } from "@/lib/sfcc/types";
-import Link from "next/link";
+
+// NB: nel template le immagini erano <Link href={/product/{handle}}>. La demo
+// resta su /projects/sfcc e non ha pagine prodotto, quindi le immagini non
+// navigano (restano statiche). L'interazione utile — add-to-cart — è nel label.
 
 interface LatestProductCardProps {
   product: Product;
@@ -20,11 +23,7 @@ export function LatestProductCard({
   if (principal) {
     return (
       <div className={cn("h-fold flex flex-col relative", className)}>
-        <Link
-          href={`/product/${product.handle}`}
-          className="size-full"
-          prefetch
-        >
+        <div className="size-full">
           <Image
             priority
             src={product.featuredImage.url}
@@ -34,7 +33,7 @@ export function LatestProductCard({
             quality={100}
             className="object-cover size-full"
           />
-        </Link>
+        </div>
         <div className="absolute bottom-0 left-0 grid w-full grid-cols-4 gap-6 pointer-events-none max-md:contents p-sides">
           <FeaturedProductLabel
             className="col-span-3 col-start-2 pointer-events-auto 2xl:col-start-3 2xl:col-span-2 shrink-0"
@@ -48,11 +47,7 @@ export function LatestProductCard({
 
   return (
     <div className={cn("relative", className)}>
-      <Link
-        href={`/product/${product.handle}`}
-        className="block w-full aspect-square"
-        prefetch
-      >
+      <div className="block w-full aspect-square">
         <Image
           src={product.featuredImage.url}
           alt={product.featuredImage.altText}
@@ -60,7 +55,7 @@ export function LatestProductCard({
           height={100}
           className="object-cover size-full"
         />
-      </Link>
+      </div>
 
       <div
         className={cn(

@@ -69,3 +69,46 @@ export type Product = Omit<
 };
 
 export type NavItem = { label: string; href: string };
+
+export type SFCCMode = "mock" | "live";
+
+// Carrello: versione SDK-free (l'originale derivava da SalesforceCart con
+// campi come paymentInstruments/shippingMethod tipati sull'SDK — qui
+// omessi perché il carrello resta sempre vuoto in questa fase, l'header
+// deve solo montare CartProvider/CartModal senza crash).
+export type CartProduct = {
+  id: string;
+  handle: string;
+  title: string;
+  images: Image[];
+  description?: string;
+  featuredImage: Image;
+  variationValues?: Record<string, string>;
+};
+
+export type CartItem = {
+  id: string | undefined;
+  quantity: number;
+  cost: {
+    totalAmount: Money;
+  };
+  merchandise: {
+    id: string;
+    title: string;
+    selectedOptions: SelectedOptions;
+    product: CartProduct;
+  };
+};
+
+export type Cart = {
+  id: string | undefined;
+  checkoutUrl: string;
+  cost: {
+    subtotalAmount: Money;
+    totalAmount: Money;
+    totalTaxAmount: Money;
+    shippingAmount?: Money;
+  };
+  lines: CartItem[];
+  totalQuantity: number;
+};

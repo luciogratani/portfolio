@@ -1,0 +1,272 @@
+/* SfccDemoSite — mini-sito SFCC "live" dentro lo schermo obliquo di
+   SfccScreenCard (card 3). Box fisso 1600×900 (16:9): NON riceve scale/warp
+   qui, perché la deformazione prospettica (matrix3d) è applicata dal genitore
+   `.sfcc-screen-card__screen` (vedi sections.css + SfccScreenCard.tsx). Questo
+   componente riempie il box 1:1 e ospita le animazioni "vita del negozio".
+   I loop CSS sono gated sulla classe `.is-live` (accesa ~0.8s dopo l'entrance,
+   vedi SfccDemoSite.tsx) così non si accavallano con l'ingresso e si resettano
+   all'uscita. */
+.sfcc-demo-site {
+  position: absolute;
+  inset: 0;
+  width: 1600px;
+  height: 900px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  /* gap comune griglia/marquee: usato anche nel calcolo del loop seamless. */
+  --sfcc-gap: 22px;
+
+  /* Font scoped al componente, stesso pattern di .demo-site in demo-site.css:
+     ridefinendo --font-sans/--font-mono qui l'override resta confinato a
+     questo sottoalbero via cascata CSS. */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+  font-family: var(--font-sans);
+}
+
+/* underlay-nav.css forza globalmente un cursore custom via `cursor: url(...)`
+   su a/button: qui lo sovrascriviamo scoped, come .demo-site in demo-site.css. */
+.sfcc-demo-site a,
+.sfcc-demo-site button {
+  cursor: pointer;
+}
+
+/* ---------- Nav ciclante con underline che slitta ---------- */
+.sfcc-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 6px 16px;
+  border-radius: 4px;
+  background-color: color-mix(in srgb, var(--color-foreground) 5%, transparent);
+}
+.sfcc-nav__item {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-foreground) 45%, transparent);
+  transition: color 0.3s ease;
+}
+.sfcc-nav__item.is-active {
+  color: var(--color-foreground);
+}
+/* Barra misurata in JS (left/width via style inline): slitta sotto l'item
+   attivo con una transizione morbida. */
+.sfcc-nav__underline {
+  position: absolute;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background-color: var(--color-foreground);
+  transition:
+    left 0.45s cubic-bezier(0.65, 0, 0.35, 1),
+    width 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+  pointer-events: none;
+}
+
+/* ---------- Cart con badge fisso "1" ---------- */
+.sfcc-cart {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--color-foreground) 5%, transparent);
+}
+.sfcc-cart__badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background-color: var(--color-foreground);
+  color: var(--color-background);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+}
+
+/* ---------- Marquee verticale (auto-browse della griglia) ---------- */
+.sfcc-marquee {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding: var(--sfcc-gap) 40px 0;
+  /* Niente mask-fade ai bordi: sotto la prospettiva del monitor quei gradienti
+     sfumati diventavano aloni chiari obliqui sopra il catalogo. Le card sono
+     comunque clippate nettamente da overflow: hidden. */
+}
+
+/* Track: due copie identiche impilate; scorre -50% in loop lineare senza
+   cuciture. Ogni copia ha margin-bottom = gap: così la distanza tra l'ultima
+   riga di una copia e la prima della successiva è uguale al gap interno, e a
+   -50% (esattamente l'altezza di una copia col suo margine) il salto è
+   invisibile. */
+.sfcc-marquee__track {
+  will-change: transform;
+}
+.is-live .sfcc-marquee__track {
+  animation: sfcc-scroll 34s linear infinite;
+}
+/* Hover sulla griglia → pausa nativa dello scroll. */
+.sfcc-marquee:hover .sfcc-marquee__track {
+  animation-play-state: paused;
+}
+@keyframes sfcc-scroll {
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+.sfcc-marquee__copy {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sfcc-gap);
+  margin-bottom: var(--sfcc-gap);
+}
+
+/* ---------- Card prodotto ---------- */
+.sfcc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: var(--color-card);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.sfcc-card__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: var(--color-muted);
+  overflow: hidden;
+}
+/* Wrapper dello zoom-hover: transform indipendente dal ken-burns sull'<img>. */
+.sfcc-card__zoom {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
+}
+.sfcc-card:hover .sfcc-card__zoom {
+  transform: scale(1.05);
+}
+.sfcc-card__img {
+  /* Ken-burns: micro-zoom lento e alternato; delay sfasato inline per card.
+     Vive sull'<img> (elemento distinto da .sfcc-card__zoom) → i due transform
+     si compongono senza sovrascriversi. */
+  transform-origin: center;
+  will-change: transform;
+}
+.is-live .sfcc-card__img {
+  animation: sfcc-kenburns 11s ease-in-out infinite alternate;
+}
+@keyframes sfcc-kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.06);
+  }
+}
+
+/* Overlay hover: pannello in basso con titolo/prezzo + pill "Add to cart",
+   ispirato a src/components/sfcc/product-card.tsx. Nascosto di default, entra
+   in hover. */
+.sfcc-card__overlay {
+  position: absolute;
+  inset-inline: 12px;
+  bottom: 12px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: var(--color-card);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  opacity: 0;
+  transform: translateY(30%);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+  pointer-events: none;
+}
+.sfcc-card:hover .sfcc-card__overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+.sfcc-card__overlay-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sfcc-card__overlay-title {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-foreground);
+}
+.sfcc-card__overlay-price {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--color-foreground);
+}
+.sfcc-card__addbtn {
+  display: block;
+  padding: 9px 12px;
+  border-radius: 6px;
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Caption sotto l'immagine (visibile sempre, si nasconde dietro l'overlay). */
+.sfcc-card__caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px 12px;
+}
+.sfcc-card__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-foreground);
+  text-wrap: balance;
+}
+.sfcc-card__price {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--color-foreground) 70%, transparent);
+}
+
+/* ---------- prefers-reduced-motion: spegni i loop ambientali ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .is-live .sfcc-marquee__track,
+  .is-live .sfcc-card__img {
+    animation: none;
+  }
+}

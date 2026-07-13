@@ -182,3 +182,52 @@
 .screen-card__caption-link:hover > span {
   transform: translateX(0.15em);
 }
+
+/* --- Card 3: monitor in prospettiva con schermo obliquo (SfccScreenCard) ---
+   Stessa tecnica "stage a cover" di .screen-card*, ma qui lo schermo NON è un
+   rettangolo dritto: è un quadrilatero prospettico. La `.sfcc-screen-card__screen`
+   ha quindi dimensione intrinseca fissa 1600×900 (design del mini-sito) e
+   riceve un `transform: matrix3d(...)` calcolato in JS (vedi SfccScreenCard.tsx
+   + src/lib/homography.ts) che la deforma esattamente sul quad — niente
+   left/top/width/height in percentuale come per lo schermo dritto di card 2. */
+.sfcc-screen-card {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  container-type: size;
+}
+
+/* Stage: rettangolo con l'aspect di hero2-j5-bg.jpg (6000×4500 = 4:3),
+   scalato a coprire la card e centrato, stessa tecnica di .screen-card__stage. */
+.sfcc-screen-card__stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100cqw, 100cqh * 1.333333);
+  height: max(100cqh, 100cqw * 0.75);
+}
+
+.sfcc-screen-card__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Schermo: box di design fisso 1600×900 (16:9), deformato sul quad
+   prospettico via matrix3d inline (JS). transform-origin 0 0 perché
+   l'omografia è calcolata rispetto all'angolo top-left del rettangolo
+   sorgente. GSAP anima solo opacity/filter qui: mai transform/scale. */
+.sfcc-screen-card__screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1600px;
+  height: 900px;
+  overflow: hidden;
+  transform-origin: 0 0;
+  will-change: opacity, filter, transform;
+}

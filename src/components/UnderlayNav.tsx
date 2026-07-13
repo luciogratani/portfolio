@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { CustomEase } from "gsap/CustomEase";
 import CrispHero from "./CrispHero";
 import ScreenCard from "./ScreenCard";
+import SfccScreenCard from "./SfccScreenCard";
 import ScrollSections from "./ScrollSections";
 import { peekReturn, clearReturn, saveCurrentSection } from "@/lib/return-nav";
 
@@ -405,17 +406,19 @@ export default function UnderlayNav() {
 
           <ScreenCard active={currentSection === 1 && !scrollLocked} />
 
-          <div className="demo-card" style={{ background: "#16a34a", color: "#fff" }}>
-            <div className="demo-card__inner">
-              <span className="demo-card__num">3</span>
-              <h2 className="demo-card__title">Gestionale</h2>
-            </div>
-          </div>
+          <SfccScreenCard active={currentSection === 2 && !scrollLocked} />
 
           <div className="demo-card" style={{ background: "#2563eb", color: "#fff" }}>
             <div className="demo-card__inner">
               <span className="demo-card__num">4</span>
               <h2 className="demo-card__title">Contatti</h2>
+            </div>
+          </div>
+
+          <div className="demo-card" style={{ background: "#27272a", color: "#fff" }}>
+            <div className="demo-card__inner">
+              <span className="demo-card__num">5</span>
+              <h2 className="demo-card__title">footer</h2>
             </div>
           </div>
         </ScrollSections>

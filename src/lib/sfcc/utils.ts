@@ -7,6 +7,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Usato dal CartModal per formattare i totali (carrello resta vuoto in
+// questa fase, ma la utility serve comunque a compilare/mostrare 0,00).
+export const formatPrice = (price: string, currencyCode: string): string => {
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: currencyCode,
+    currencyDisplay: "narrowSymbol",
+  }).format(parseFloat(price));
+};
+
 export const getLabelPosition = (
   index: number,
 ): "top-left" | "top-right" | "bottom-left" | "bottom-right" => {
