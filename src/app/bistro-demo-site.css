@@ -1,0 +1,199 @@
+/* BistroDemoSite — mini-sito Vibe Bistro "live" dentro lo schermo obliquo del
+   MacBook di BistroScreenCard (card 4). Box fisso 1600×1034: NON riceve
+   scale/warp qui, perché la deformazione prospettica (matrix3d) è applicata
+   dal genitore `.bistro-screen-card__screen` (vedi sections.css +
+   BistroScreenCard.tsx). Questo componente riempie il box 1:1 e ospita
+   header + hero + marquee ticker "congelati" (nessuno scroll) della landing
+   di riferimento (repo/retro-restaurant-landing-page-vibe-bistro), stesso
+   pattern di sfcc-demo-site.css: `.is-live` accende i loop ambientali ~0.8s
+   dopo l'entrance e si resetta all'uscita. */
+.bistro-demo-site {
+  position: absolute;
+  inset: 0;
+  width: 1600px;
+  height: 1034px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: #fdf9f0;
+  color: #1a1a1a;
+
+  /* Font scoped al componente, stesso pattern di .sfcc-demo-site. */
+  font-family: var(--font-bistro-space-grotesk), sans-serif;
+}
+
+/* Nessun override del cursore: a/button/CTA ereditano il cursore custom pointer
+   del sito (regola globale `a, button { cursor: url(...) }` di underlay-nav.css);
+   le aree non interattive restano sul cursore custom default. Il redirect
+   dell'intero screen è demandato a un overlay dedicato, non al click a mano. */
+
+/* ---------- Header ---------- */
+.bistro-demo-site__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 56px;
+  height: 128px;
+  flex: 0 0 auto;
+  border-bottom: 3px solid #1a1a1a;
+  background: white;
+}
+.bistro-demo-site__logo {
+  font-family: var(--font-bistro-syne), sans-serif;
+  font-weight: 800;
+  font-size: 34px;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+.bistro-demo-site__nav {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+.bistro-demo-site__nav-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  color: #1a1a1a;
+  transition: color 0.2s ease;
+}
+.bistro-demo-site__nav-link:hover {
+  color: #ff4d00;
+  text-decoration: underline;
+}
+.bistro-demo-site__cta {
+  background: #bff000;
+  padding: 12px 26px;
+  border: 3px solid #1a1a1a;
+  box-shadow: 4px 4px 0 #1a1a1a;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 14px;
+  transition: 0.2s;
+}
+.bistro-demo-site__cta:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #1a1a1a;
+}
+
+/* ---------- Hero ---------- */
+.bistro-demo-site__hero {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.bistro-demo-site__hero-content {
+  padding: 60px 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 3px solid #1a1a1a;
+}
+.bistro-demo-site__title {
+  font-family: var(--font-bistro-syne), sans-serif;
+  font-weight: 800;
+  font-size: 82px;
+  line-height: 0.88;
+  text-transform: uppercase;
+  margin: 0 0 26px;
+}
+.bistro-demo-site__title span {
+  font-family: var(--font-bistro-playfair), serif;
+  font-style: italic;
+  font-weight: 700;
+  color: #ff4d00;
+}
+.bistro-demo-site__subtitle {
+  font-size: 21px;
+  line-height: 1.55;
+  color: #555;
+  max-width: 42ch;
+  margin: 0 0 34px;
+}
+.bistro-demo-site__cta-row {
+  display: flex;
+  gap: 22px;
+}
+.bistro-demo-site__cta-row .bistro-demo-site__cta {
+  font-size: 18px;
+  
+}
+.bistro-demo-site__cta-outline {
+  background: white;
+}
+
+.bistro-demo-site__hero-img {
+  position: relative;
+  background: url("/bistro/hero.jpg") center center / cover;
+  overflow: hidden;
+}
+.bistro-demo-site__sticker {
+  position: absolute;
+  bottom: 34px;
+  right: 34px;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background: #2d31fa;
+  color: white;
+  border: 3px solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.15;
+  transform: rotate(15deg);
+}
+.bistro-demo-site__tag {
+  position: absolute;
+  background: white;
+  border: 2px solid #1a1a1a;
+  padding: 6px 16px;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 13px;
+  z-index: 2;
+}
+
+/* ---------- Marquee ticker ---------- */
+.bistro-demo-site__marquee {
+  flex: 0 0 auto;
+  background: #1a1a1a;
+  color: white;
+  padding: 28px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border-top: 3px solid #1a1a1a;
+}
+.bistro-demo-site__marquee-track {
+  display: inline-block;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-size: 24px;
+  will-change: transform;
+}
+.is-live .bistro-demo-site__marquee-track {
+  animation: bistro-marquee-scroll 22s linear infinite;
+}
+@keyframes bistro-marquee-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- prefers-reduced-motion: spegni i loop ambientali ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .is-live .bistro-demo-site__marquee-track {
+    animation: none;
+  }
+}

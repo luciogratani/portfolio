@@ -1,0 +1,584 @@
+/* G3DemoSite — ricostruzione "congelata" del gestionale/backoffice G3 Modena
+   (admin monorepo: sidebar shadcn + dashboard con recharts), pensata per
+   vivere dentro lo schermo dello Studio Display di G3ScreenCard. Stessa
+   tecnica di DemoSite: box fisso 1600×900 scalato via `transform: scale()` con
+   fattore calcolato in JS (--g3-scale, vedi ResizeObserver in G3DemoSite.tsx),
+   perché scale() vuole un numero unitless non ricavabile da unità cq in CSS.
+   Palette neutra zinc + chart palette default shadcn, fedeli all'admin reale. */
+
+.g3-demo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1600px;
+  height: 900px;
+  overflow: hidden;
+  transform-origin: top left;
+  transform: scale(var(--g3-scale, 1));
+  display: flex;
+
+  /* Font scoped (Inter/JetBrains via next/font), come demo-site.css. */
+  --font-sans: var(--font-demo-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-demo-mono), ui-monospace, "SFMono-Regular", monospace;
+  font-family: var(--font-sans);
+
+  /* Token del tema zinc dell'admin reale (globals.css shadcn). */
+  --bg: #ffffff;
+  --muted: #f4f4f5;
+  --muted-2: #fafafa;
+  --border: #e4e4e7;
+  --fg: #18181b;
+  --fg-soft: #52525b;
+  --fg-mute: #a1a1aa;
+  --primary: #18181b;
+  --ring: #d4d4d8;
+  /* Chart palette (hsl default shadcn light). */
+  --c1: hsl(12 76% 61%);
+  --c2: hsl(173 58% 39%);
+  --c3: hsl(197 37% 34%);
+  --c4: hsl(43 74% 66%);
+  --c5: hsl(27 87% 67%);
+
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------- Sidebar ---------------- */
+.g3-sb {
+  width: 268px;
+  flex-shrink: 0;
+  height: 100%;
+  background: var(--muted-2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 14px;
+  gap: 6px;
+}
+
+.g3-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px 16px;
+}
+.g3-brand__mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: -0.03em;
+  flex-shrink: 0;
+}
+.g3-brand__name {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.g3-brand__sub {
+  font-size: 12px;
+  color: var(--fg-mute);
+  margin-top: 2px;
+}
+
+.g3-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 11px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg);
+  color: var(--fg-mute);
+  font-size: 13px;
+}
+.g3-search svg {
+  width: 15px;
+  height: 15px;
+}
+.g3-search kbd {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-mute);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 1px 5px;
+  background: var(--muted);
+}
+
+.g3-navgroup {
+  margin-top: 8px;
+}
+.g3-navgroup__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-mute);
+  padding: 4px 10px;
+}
+.g3-navitem {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  height: 37px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg-soft);
+  cursor: default;
+}
+.g3-navitem svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  color: var(--fg-mute);
+}
+.g3-navitem.is-active {
+  background: var(--primary);
+  color: #fff;
+}
+.g3-navitem.is-active svg {
+  color: #fff;
+}
+.g3-navitem__badge {
+  margin-left: auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--c1);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+.g3-sb__user {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+.g3-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--c3), var(--c2));
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.g3-sb__user-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.g3-sb__user-mail {
+  font-size: 12px;
+  color: var(--fg-mute);
+}
+.g3-sb__user svg {
+  margin-left: auto;
+  width: 16px;
+  height: 16px;
+  color: var(--fg-mute);
+}
+
+/* ---------------- Main ---------------- */
+.g3-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.g3-top {
+  height: 66px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 28px;
+  background: var(--bg);
+}
+.g3-crumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+.g3-crumb__muted {
+  color: var(--fg-mute);
+}
+.g3-crumb__sep {
+  color: var(--fg-mute);
+}
+.g3-crumb__cur {
+  font-weight: 600;
+}
+.g3-top__spacer {
+  flex: 1;
+}
+.g3-top__btn {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  color: var(--fg-soft);
+  background: var(--bg);
+  position: relative;
+}
+.g3-top__btn svg {
+  width: 17px;
+  height: 17px;
+}
+.g3-top__dot {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--c1);
+  border: 1.5px solid var(--bg);
+}
+.g3-top__cta {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 9px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.g3-top__cta svg {
+  width: 16px;
+  height: 16px;
+}
+
+.g3-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 24px 28px;
+  background: var(--muted-2);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Stat cards */
+.g3-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+.g3-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+}
+.g3-stat__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--fg-soft);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.g3-stat__head svg {
+  width: 17px;
+  height: 17px;
+  color: var(--fg-mute);
+}
+.g3-stat__val {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 12px;
+  line-height: 1;
+}
+.g3-stat__foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--fg-mute);
+}
+.g3-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 600;
+}
+.g3-trend.up {
+  color: var(--c2);
+}
+.g3-trend.down {
+  color: var(--c1);
+}
+.g3-trend svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Grids of chart cards */
+.g3-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 18px;
+}
+.g3-card--chart {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.g3-card__title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.g3-card__desc {
+  font-size: 12.5px;
+  color: var(--fg-mute);
+  margin-top: 2px;
+}
+.g3-card__chart {
+  flex: 1;
+  min-height: 0;
+  margin-top: 12px;
+  position: relative;
+}
+.g3-span-col {
+  grid-row: span 2;
+}
+
+/* Donut center label */
+.g3-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.g3-donut-center b {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.g3-donut-center span {
+  font-size: 12px;
+  color: var(--fg-mute);
+}
+.g3-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 10px;
+}
+.g3-legend__i {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--fg-soft);
+}
+.g3-legend__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* Recent messages list */
+.g3-list {
+  flex: 1;
+  min-height: 0;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+}
+.g3-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 4px;
+  border-top: 1px solid var(--border);
+}
+.g3-row:first-child {
+  border-top: none;
+}
+.g3-row__av {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.g3-row__name {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.g3-row__msg {
+  font-size: 12.5px;
+  color: var(--fg-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 340px;
+}
+.g3-row__time {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--fg-mute);
+  white-space: nowrap;
+}
+.g3-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.g3-tag--new {
+  background: color-mix(in srgb, var(--c2) 16%, white);
+  color: var(--c2);
+}
+.g3-tag--open {
+  background: var(--muted);
+  color: var(--fg-soft);
+}
+
+/* ---------- Cursore custom + hover (come gli altri demo) ----------
+   Gli elementi "interattivi" del gestionale sono <div>/<span> (non a/button),
+   quindi NON ereditano il cursore pointer custom globale di underlay-nav.css:
+   glielo assegniamo ESPLICITAMENTE (stesso SVG Osmo di .tasko-demo-site*), piu'
+   un set di micro-hover fedeli a un backoffice shadcn (bg-accent / lift +
+   shadow, transition ~200-300ms). Tutto gated: gli hover scattano solo a card
+   attiva (pointer-events sul root del demo, vedi G3DemoSite.tsx). */
+.g3-navitem,
+.g3-search,
+.g3-sb__user,
+.g3-top__btn,
+.g3-top__cta,
+.g3-card,
+.g3-row {
+  cursor: url("https://cdn.prod.website-files.com/6708f85ff3d3cba6aff436fb/671251b212e6b71494aa67ff_cursor-pointer%402x.svg")
+      12 0,
+    pointer;
+}
+/* Elementi che NON si sollevano: solo bg/color/border. Niente `transform` in
+   transition perche' alcuni di questi (search, user) sono anche target
+   dell'ingresso GSAP (che scrive transform inline) — la transition lo
+   rallenterebbe. Il lift con transform vive solo sui figli non-GSAP piu' sotto. */
+.g3-navitem,
+.g3-search,
+.g3-sb__user,
+.g3-top__btn,
+.g3-row {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+/* Elementi che si sollevano (lift + shadow): non sono mai target GSAP diretti
+   (le card entrano via wrapper .g3-stats/.g3-grid, la CTA via .g3-top). */
+.g3-card,
+.g3-top__cta {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.2s ease;
+}
+.g3-navitem svg,
+.g3-stat__head svg {
+  transition: color 0.2s ease, transform 0.3s ease;
+}
+
+/* Nav: la voce non attiva si evidenzia (hover:bg-accent shadcn). */
+.g3-navitem:not(.is-active):hover {
+  background: var(--muted);
+  color: var(--fg);
+}
+.g3-navitem:not(.is-active):hover svg {
+  color: var(--fg-soft);
+}
+
+/* Search / user / top button: bg-accent + bordo piu' marcato. */
+.g3-search:hover,
+.g3-sb__user:hover,
+.g3-top__btn:hover {
+  background: var(--muted);
+  border-color: var(--ring);
+}
+
+/* CTA primaria: lieve lift + ammorbidimento. */
+.g3-top__cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px -8px rgba(24, 24, 27, 0.45);
+}
+
+/* Stat / chart card: lift + shadow (hover:shadow-md shadcn). */
+.g3-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 30px -18px rgba(24, 24, 27, 0.3);
+  border-color: var(--ring);
+}
+.g3-card:hover .g3-stat__head svg {
+  color: var(--fg-soft);
+  transform: scale(1.08);
+}
+
+/* Riga messaggio: evidenziazione soft (hover:bg-muted/50). */
+.g3-row:hover {
+  background: var(--muted);
+}
+
+/* Recharts: togli l'outline focus e uniforma i tick al tema. */
+.g3-demo .recharts-surface {
+  overflow: visible;
+}
+.g3-demo .recharts-cartesian-axis-tick text {
+  fill: var(--fg-mute);
+  font-size: 11px;
+}
+.g3-demo .recharts-cartesian-grid line {
+  stroke: var(--border);
+}

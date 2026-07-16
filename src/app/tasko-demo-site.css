@@ -1,0 +1,346 @@
+/* TaskoDemoSite — mini-dashboard Tasko "congelata" dentro lo schermo dell'iPad
+   di TaskoScreenCard (card 5). Box fisso 1600×1205 (~4:3, = aspect del vetro
+   iPad misurato): NON riceve scale qui, lo scale del `.tasko-screen-card__fit`
+   e' calcolato dal genitore (vedi sections.css + TaskoScreenCard.tsx).
+   Colori hardcoded (approssimazione hex dei token oklch di tasko.css):
+   questo CSS carica sulla home (portfolio layout), non sotto /projects/tasko,
+   quindi le custom property scoped a .tasko-root non sono disponibili qui —
+   stesso motivo per cui bistro-demo-site.css/sfcc-demo-site.css usano hex
+   fissi invece delle utility Tailwind del tema. */
+.tasko-demo-site {
+  position: absolute;
+  inset: 0;
+  width: 1600px;
+  height: 1205px;
+  overflow: hidden;
+  display: flex;
+  background-color: #f6f8f6;
+  color: #262e26;
+  font-family: var(--font-tasko-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---------- Cursore custom + hover (recuperati da /projects/tasko) ----------
+   Gli elementi interattivi qui sono <span>/<div> (non a/button), quindi NON
+   ricevono il cursore pointer custom globale di underlay-nav.css: glielo
+   assegniamo ESPLICITAMENTE (stesso SVG Osmo, come .sfcc-card__addbtn). Piu'
+   un set di micro-hover ripresi dai componenti reali della dashboard
+   (scale/lift + bg-secondary + icona che scala/ruota, transition ~300ms). Il
+   logo e' un <Link> e il cursore lo eredita gia'. Tutto gated: gli hover
+   scattano solo a card attiva (pointer-events sul root del demo). */
+.tasko-demo-site__nav-link,
+.tasko-demo-site__stat,
+.tasko-demo-site__list-item,
+.tasko-demo-site__search,
+.tasko-demo-site__profile {
+  cursor: url("https://cdn.prod.website-files.com/6708f85ff3d3cba6aff436fb/671251b212e6b71494aa67ff_cursor-pointer%402x.svg")
+      12 0,
+    pointer;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+.tasko-demo-site__list-icon,
+.tasko-demo-site__avatar {
+  transition: transform 0.3s ease, background-color 0.2s ease;
+}
+
+/* Nav: la voce non attiva si evidenzia (hover:bg-tasko-secondary del progetto). */
+.tasko-demo-site__nav-link:not(.is-active):hover {
+  background: #eef3ef;
+  color: #1a3324;
+}
+
+/* Stat card: lift + shadow (hover:scale-105 hover:shadow-xl del progetto). */
+.tasko-demo-site__stat:hover {
+  transform: translateY(-4px);
+}
+.tasko-demo-site__stat--card:hover {
+  box-shadow: 0 18px 34px -16px rgba(26, 51, 36, 0.35);
+  border-color: #cfe0d5;
+}
+.tasko-demo-site__stat--primary:hover {
+  box-shadow: 0 18px 34px -12px rgba(5, 150, 105, 0.65);
+}
+
+/* Project list: bg-secondary + icona che scala/ruota (group-hover del progetto). */
+.tasko-demo-site__list-item:hover {
+  background: #f0f5f1;
+}
+.tasko-demo-site__list-item:hover .tasko-demo-site__list-icon {
+  transform: scale(1.1) rotate(-6deg);
+  background: #dcefe3;
+}
+
+/* Search + profilo: micro-evidenza. */
+.tasko-demo-site__search:hover {
+  border-color: #059669;
+  color: #66746a;
+}
+.tasko-demo-site__profile:hover .tasko-demo-site__avatar {
+  transform: scale(1.08);
+}
+
+/* ---------- Sidebar ---------- */
+.tasko-demo-site__sidebar {
+  flex: 0 0 260px;
+  background: #ffffff;
+  border-right: 1px solid #e6e9e6;
+  padding: 32px 22px;
+  display: flex;
+  flex-direction: column;
+}
+.tasko-demo-site__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 22px;
+  margin-bottom: 30px;
+  color: #1a3324;
+}
+.tasko-demo-site__logo-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #059669;
+  flex: 0 0 auto;
+}
+.tasko-demo-site__nav-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8b978c;
+  margin: 0 0 10px;
+}
+.tasko-demo-site__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tasko-demo-site__nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #66746a;
+}
+.tasko-demo-site__nav-link.is-active {
+  background: #059669;
+  color: #ffffff;
+  box-shadow: 0 8px 18px -6px rgba(5, 150, 105, 0.45);
+}
+.tasko-demo-site__nav-badge {
+  margin-left: auto;
+  background: #059669;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+.tasko-demo-site__nav-link.is-active .tasko-demo-site__nav-badge {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ---------- Main ---------- */
+.tasko-demo-site__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+}
+.tasko-demo-site__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 26px;
+}
+.tasko-demo-site__search {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e6e9e6;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #8b978c;
+  width: 280px;
+}
+.tasko-demo-site__profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 16px;
+  border-left: 1px solid #e6e9e6;
+}
+.tasko-demo-site__avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: #059669;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tasko-demo-site__profile-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a3324;
+}
+
+.tasko-demo-site__title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #1a3324;
+  margin: 0 0 4px;
+}
+.tasko-demo-site__subtitle {
+  font-size: 14px;
+  color: #8b978c;
+  margin: 0 0 24px;
+}
+
+/* ---------- Stats ---------- */
+.tasko-demo-site__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.tasko-demo-site__stat {
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.tasko-demo-site__stat--primary {
+  background: #059669;
+  color: #fff;
+  box-shadow: 0 10px 24px -10px rgba(5, 150, 105, 0.55);
+}
+.tasko-demo-site__stat--card {
+  background: #ffffff;
+  border: 1px solid #e6e9e6;
+  color: #1a3324;
+}
+.tasko-demo-site__stat-title {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+.tasko-demo-site__stat-value {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+/* ---------- Chart + list ---------- */
+.tasko-demo-site__row {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 16px;
+}
+.tasko-demo-site__chart-card,
+.tasko-demo-site__list-card {
+  background: #ffffff;
+  border: 1px solid #e6e9e6;
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+}
+.tasko-demo-site__chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a3324;
+  margin-bottom: 18px;
+}
+.tasko-demo-site__chart-tag {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8b978c;
+}
+.tasko-demo-site__chart {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding-bottom: 4px;
+}
+.tasko-demo-site__bar-col {
+  flex: 1 1 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+.tasko-demo-site__bar {
+  width: 100%;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #10b981, #047857);
+}
+.tasko-demo-site__bar-label {
+  font-size: 12px;
+  color: #8b978c;
+}
+
+.tasko-demo-site__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tasko-demo-site__list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 12px;
+}
+.tasko-demo-site__list-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #ecf5ef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex: 0 0 auto;
+}
+.tasko-demo-site__list-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.tasko-demo-site__list-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a3324;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tasko-demo-site__list-date {
+  font-size: 11px;
+  color: #8b978c;
+}

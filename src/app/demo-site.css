@@ -32,14 +32,11 @@
   font-family: var(--font-sans);
 }
 
-/* underlay-nav.css forza globalmente un cursore custom via `cursor: url(...)`
-   su a/button (vedi righe 8-17 di quel file): qui lo sovrascriviamo scoped
-   al demo con un cursore pointer standard, più leggibile dentro il finto
-   sito nello schermo. */
-.demo-site a,
-.demo-site button {
-  cursor: pointer;
-}
+/* Nessun override del cursore: gli elementi interattivi del mock (a, button,
+   CTA) ereditano il cursore custom pointer del sito dalla regola globale
+   `a, button { cursor: url(...) }` di underlay-nav.css. Le aree non
+   interattive restano sul cursore custom default (body). L'intero screen NON
+   è cliccabile a mano: il redirect è demandato a un overlay dedicato. */
 
 /* ---------- Noise overlay (grain), come .noise-overlay del riferimento ---------- */
 .demo-noise::before {

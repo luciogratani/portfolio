@@ -231,3 +231,145 @@
   transform-origin: 0 0;
   will-change: opacity, filter, transform;
 }
+
+/* --- Card 4: MacBook Pro 16 in prospettiva con schermo obliquo
+   (BistroScreenCard) --- Stessa tecnica di .sfcc-screen-card*: stage a
+   "cover" (bg 6000×4500 = 4:3, identico a hero2) + schermo con dimensione
+   intrinseca fissa 1600×1034 (aspect pannello MacBook Pro 16, 3456/2234)
+   deformato via matrix3d calcolato in JS (BistroScreenCard.tsx +
+   src/lib/homography.ts). */
+.bistro-screen-card {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  container-type: size;
+}
+
+.bistro-screen-card__stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100cqw, 100cqh * 1.333333);
+  height: max(100cqh, 100cqw * 0.75);
+}
+
+.bistro-screen-card__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Schermo: box di design fisso 1600×1034, deformato sul quad prospettico via
+   matrix3d inline (JS). transform-origin 0 0 perché l'omografia è calcolata
+   rispetto all'angolo top-left del rettangolo sorgente. GSAP anima solo
+   opacity/filter qui: mai transform/scale. */
+.bistro-screen-card__screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1600px;
+  height: 1034px;
+  overflow: hidden;
+  transform-origin: 0 0;
+  will-change: opacity, filter, transform;
+
+  /* Angoli SUPERIORI arrotondati (come il pannello di un MacBook): il raggio è
+     nello spazio-design 1600×1034, quindi viene deformato in prospettiva dalla
+     matrix3d insieme al contenuto. Solo alto sx/dx: in basso lo schermo incontra
+     la scocca ed è squadrato. Nell'SVG originale questi angoli erano già tondi;
+     il warp del mini-sito rettangolare li aveva "quadrati". Valore tunable. */
+  border-top-left-radius: 26px;
+  border-top-right-radius: 26px;
+}
+
+/* Notch del MacBook: piccola tacca nera centrata sul bordo alto dello schermo.
+   Vive nello spazio-design 1600×1034 come figlio della `.screen`, quindi viene
+   deformato in prospettiva dalla matrix3d del genitore. Dipinto DOPO il
+   BistroDemoSite (ultimo figlio) così sta sopra il contenuto. Nell'SVG originale
+   il notch c'era; il warp del mini-sito lo copriva. */
+.bistro-screen-card__notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 136px;
+  height: 26px;
+  background: #000;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* --- Card 5: Tasko in un iPad Pro orizzontale (TaskoScreenCard) ---
+   Come card 2 (GiGi/ScreenCard): schermo DRITTO posizionato in % (l'iPad e'
+   ripreso parallelo, niente matrix3d). Stage a cover sul bg `hero4-j5-bg.png`
+   (l'iPad spento su sfondo a nido d'ape) + `.tasko-screen-card__screen` sulle
+   coordinate del vetro + `.tasko-screen-card__fit` col design fisso di
+   TaskoDemoSite scalato via JS. */
+.tasko-screen-card {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background: #0b0e0d;
+  container-type: size;
+}
+
+/* Stage: rettangolo con l'aspect del bg iPad `hero4-j5-bg.png` (2250×3000 =
+   0.75, PORTRAIT), scalato a coprire la card e centrato — stessa tecnica di
+   .sfcc-screen-card__stage ma con aspect portrait, quindi l'immagine viene
+   scalata sulla LARGHEZZA della card (ritaglia sopra/sotto). L'iPad e' al
+   centro dell'immagine, quindi resta sempre visibile e centrato. */
+.tasko-screen-card__stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100cqw, 100cqh * 0.75);
+  height: max(100cqh, 100cqw * 1.333333);
+}
+
+.tasko-screen-card__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Schermo: rettangolo DRITTO (l'iPad e' ripreso parallelo, niente matrix3d),
+   posizionato in % dello stage sulle coordinate misurate del vetro dell'iPad
+   (px su 2250×3000: x368 y929 w1523 h1147). Essendo in % dello stage resta
+   incollato al device a ogni risoluzione, zero JS per il posizionamento.
+   L'aspect del box (0.67689/0.38233 * 0.75 ≈ 1.328) combacia col design 4:3
+   di TaskoDemoSite: il fit interno lo riempie esattamente. border-radius per
+   seguire gli angoli tondi del vetro iPad (in %, scala col box; tunable). */
+.tasko-screen-card__screen {
+  position: absolute;
+  left: 16.3556%;
+  top: 30.9667%;
+  width: 67.6%;
+  height: 38.2333%;
+  overflow: hidden;
+  border-radius: 2.4%;
+  will-change: opacity, filter;
+}
+
+/* Fit: il design fisso 1600×1205 (4:3, = TaskoDemoSite) scalato uniformemente
+   in JS (transform: scale = screenWidthPx / 1600, transform-origin 0 0) per
+   riempire lo `.tasko-screen-card__screen`. La power-on (opacity/filter) vive
+   sullo screen; lo `scale` vive qui: nessun conflitto di transform. */
+.tasko-screen-card__fit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1600px;
+  height: 1205px;
+  transform-origin: 0 0;
+  will-change: transform;
+}

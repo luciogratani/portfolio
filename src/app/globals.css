@@ -34,6 +34,31 @@
   --spacing-fold: 100svh;
 }
 
+/* --- Tema della route /projects/tasko (demo dashboard gestionale). DEVE stare
+   QUI (non in tasko.css): in Tailwind v4 le utility si generano solo dai @theme
+   nello stylesheet che importa tailwindcss. Con @theme in tasko.css i token
+   emettevano le variabili ma NON le classi (.bg-tasko-* = 0 regole → stili
+   rotti). Token PREFISSATI `tasko-` per non collidere con gli omonimi sfcc qui
+   sopra: usati SOLO dai componenti tasko. Tema fisso light (niente .dark). --- */
+@theme {
+  --color-tasko-background: oklch(0.98 0.005 120);
+  --color-tasko-foreground: oklch(0.25 0.02 120);
+  --color-tasko-card: oklch(1 0 0);
+  --color-tasko-card-foreground: oklch(0.25 0.02 120);
+  --color-tasko-primary: oklch(0.42 0.15 155);
+  --color-tasko-primary-foreground: oklch(0.98 0.01 155);
+  --color-tasko-secondary: oklch(0.96 0.01 120);
+  --color-tasko-secondary-foreground: oklch(0.25 0.02 120);
+  --color-tasko-muted: oklch(0.96 0.01 120);
+  --color-tasko-muted-foreground: oklch(0.55 0.02 120);
+  --color-tasko-accent: oklch(0.55 0.18 155);
+  --color-tasko-accent-foreground: oklch(0.98 0.01 155);
+  --color-tasko-destructive: oklch(0.577 0.245 27.325);
+  --color-tasko-border: oklch(0.92 0.01 120);
+  --color-tasko-input: oklch(0.92 0.01 120);
+  --color-tasko-ring: oklch(0.42 0.15 155);
+}
+
 @utility base-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);

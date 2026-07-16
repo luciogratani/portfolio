@@ -6,6 +6,9 @@ import { CustomEase } from "gsap/CustomEase";
 import CrispHero from "./CrispHero";
 import ScreenCard from "./ScreenCard";
 import SfccScreenCard from "./SfccScreenCard";
+import BistroScreenCard from "./BistroScreenCard";
+import TaskoScreenCard from "./TaskoScreenCard";
+import G3ScreenCard from "./G3ScreenCard";
 import ScrollSections from "./ScrollSections";
 import { peekReturn, clearReturn, saveCurrentSection } from "@/lib/return-nav";
 
@@ -32,6 +35,11 @@ export default function UnderlayNav() {
   // Versione in state dello stesso lock: serve a far partire effetti (es. il
   // power-on di ScreenCard) solo a transizione conclusa, non allo start dello step.
   const [scrollLocked, setScrollLocked] = useState(false);
+  // Con lo scroll in loop si può tornare all'hero dall'ultima card. L'autoplay
+  // dello slideshow gioca solo al PRIMISSIMO ingresso: una volta lasciato l'hero
+  // non riparte più al rientro (hero "calmo"). Il flag si alza nel handler di
+  // cambio sezione (non in un effect). Vedi CrispHero.autoplayActive.
+  const [heroLeft, setHeroLeft] = useState(false);
 
   // Rientro da un progetto (vedi src/lib/return-nav): l'indice della scheda a cui
   // tornare saltando hero + intro, o null per un accesso fresco/reload. Deciso
@@ -396,11 +404,14 @@ export default function UnderlayNav() {
             scrollLockedRef.current = l;
             setScrollLocked(l);
           }}
-          onCurrentChange={setCurrentSection}
+          onCurrentChange={(i) => {
+            if (i !== 0) setHeroLeft(true);
+            setCurrentSection(i);
+          }}
         >
           <CrispHero
             onLoaded={() => setLoaded(true)}
-            autoplayActive={loaded && currentSection === 0 && !menuOpen}
+            autoplayActive={loaded && currentSection === 0 && !menuOpen && !heroLeft}
             skipIntro={returnSection != null}
           />
 
@@ -408,19 +419,11 @@ export default function UnderlayNav() {
 
           <SfccScreenCard active={currentSection === 2 && !scrollLocked} />
 
-          <div className="demo-card" style={{ background: "#2563eb", color: "#fff" }}>
-            <div className="demo-card__inner">
-              <span className="demo-card__num">4</span>
-              <h2 className="demo-card__title">Contatti</h2>
-            </div>
-          </div>
+          <BistroScreenCard active={currentSection === 3 && !scrollLocked} />
 
-          <div className="demo-card" style={{ background: "#27272a", color: "#fff" }}>
-            <div className="demo-card__inner">
-              <span className="demo-card__num">5</span>
-              <h2 className="demo-card__title">footer</h2>
-            </div>
-          </div>
+          <TaskoScreenCard active={currentSection === 4 && !scrollLocked} />
+
+          <G3ScreenCard active={currentSection === 5 && !scrollLocked} />
         </ScrollSections>
       </main>
     </div>

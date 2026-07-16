@@ -1,0 +1,48 @@
+/* Stili scoped alla route /projects/tasko. I TOKEN colore (`--color-tasko-*`)
+   vivono in globals.css dentro @theme (obbligatorio: in Tailwind v4 le utility
+   si generano solo dai @theme nell'entry che importa tailwindcss). Qui restano
+   solo: base del wrapper, animazioni del template e l'entrance di route.
+   Tema fisso light (niente next-themes/.dark). */
+.tasko-root {
+  --font-sans: var(--font-tasko-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-tasko-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+  font-family: var(--font-sans);
+  background-color: var(--color-tasko-background);
+  color: var(--color-tasko-foreground);
+  min-height: 100vh;
+}
+
+/* Animazioni del template (float/slideInUp/barSlideUp/...), scoped al root
+   cosi non aggiungono keyframe globali. Solo quelle davvero usate nella
+   dashboard home portata qui. */
+@keyframes tasko-slide-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tasko-root .animate-slide-in-up {
+  animation: tasko-slide-in-up 0.5s ease-out forwards;
+}
+
+/* ---------- Entrance al mount della route (stesso pattern di sfcc.css/
+   bistro.css): header/sidebar scendono, il contenuto sale in fade. ---------- */
+@keyframes tasko-enter-down {
+  from { opacity: 0; transform: translateY(-80px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes tasko-enter-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: none; }
+}
+.tasko-root .tasko-enter-header {
+  animation: tasko-enter-down 0.7s cubic-bezier(0.25, 0.4, 0.25, 1) both;
+}
+.tasko-root .tasko-enter-content {
+  animation: tasko-enter-up 0.8s cubic-bezier(0.25, 0.4, 0.25, 1) 0.12s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tasko-root .tasko-enter-header,
+  .tasko-root .tasko-enter-content,
+  .tasko-root .animate-slide-in-up {
+    animation: none;
+  }
+}

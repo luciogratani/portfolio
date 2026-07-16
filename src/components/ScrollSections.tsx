@@ -46,13 +46,27 @@ type RestState = {
   innerY: number;
 };
 
-function resting(pos: number): RestState {
-  if (pos === 0)
-    return { yPercent: 0, scale: 1, borderRadius: "0px", innerY: 0 };
-  if (pos < 0)
-    return { yPercent: 0, scale: SCALE_BACK, borderRadius: RADIUS, innerY: -PARALLAX };
-  return { yPercent: 100, scale: SCALE_BACK, borderRadius: RADIUS, innerY: PARALLAX };
-}
+// Tre stati di riposo di una card. In modalità loop lo stack lineare
+// "passato/futuro" non esiste più: a ogni step conta solo la COPPIA in
+// transizione, mentre tutte le altre restano parcheggiate BELOW (fuori schermo,
+// occluse dalla corrente a scale 1). Bastano quindi tre stati espliciti invece
+// della vecchia `resting(pos)`:
+// - CURRENT: riempie lo schermo (card a fuoco).
+// - BEHIND : dietro la corrente (stessa Y, scala ridotta) — dove finisce la card
+//   USCENTE andando avanti, e da dove RIENTRA l'entrante andando indietro.
+// - BELOW  : fuori schermo in basso, parcheggio di tutte le non-correnti.
+const CURRENT: RestState = { yPercent: 0, scale: 1, borderRadius: "0px", innerY: 0 };
+const BEHIND: RestState = { yPercent: 0, scale: SCALE_BACK, borderRadius: RADIUS, innerY: -PARALLAX };
+const BELOW: RestState = { yPercent: 100, scale: SCALE_BACK, borderRadius: RADIUS, innerY: PARALLAX };
+
+// z-index ora di proprietà di GSAP (prima statico = indice DOM in JSX). Nel loop
+// dev'essere dinamico e direzionale, perché la card entrante può avere indice
+// DOM più basso di quella uscente (wrap ultima→prima) e deve comunque comparire
+// sopra. Sopra sta sempre la card che COPRE durante lo scorrimento.
+const Z_PARKED = 0; // non-correnti, fuori schermo
+const Z_BEHIND = 9; // uscente che finisce dietro la corrente (andando avanti)
+const Z_CURRENT = 10; // card a fuoco / entrante
+const Z_COVER = 11; // uscente che scende COPRENDO l'entrante (andando indietro)
 
 type Props = {
   enabled: boolean;
@@ -116,14 +130,17 @@ export default function ScrollSections({
       onCurrentRef.current?.(initialIndex);
     }
     sections.forEach((el, i) => {
-      const s = resting(i - initialIndex);
+      const s = i === initialIndex ? CURRENT : BELOW;
       // `y: 0` azzera il canale px che GSAP eredita dal transform CSS iniziale
       // (translateY(100%) → 984px): senza, yPercent non basta a muovere la card.
+      // Lo z-index (prima statico in JSX) è ora gestito qui: la corrente sopra,
+      // le parcheggiate sotto.
       gsap.set(el, {
         y: 0,
         yPercent: s.yPercent,
         scale: s.scale,
         borderRadius: s.borderRadius,
+        zIndex: i === initialIndex ? Z_CURRENT : Z_PARKED,
       });
       if (inners[i]) gsap.set(inners[i], { y: s.innerY });
     });
@@ -179,29 +196,68 @@ export default function ScrollSections({
     const step = (dir: number) => {
       const from = currentRef.current;
       if (!enabledRef.current || lockedRef.current) return;
-      const next = Math.min(Math.max(from + dir, 0), count - 1);
-      if (next === from) {
-        log(`step EDGE dir=${dir} current=${from} (già al limite, nessun movimento)`);
-        return;
-      }
+      // Loop circolare: niente più clamp agli estremi. Con ≥2 sezioni `next` è
+      // sempre diverso da `from`, quindi non esistono più "bordi" fermi.
+      if (count < 2) return;
+      const next = (from + dir + count) % count;
 
-      log(`step GO ${from} → ${next} (dir=${dir})`);
+      log(`step GO ${from} → ${next} (dir=${dir}, loop)`);
       lockedRef.current = true;
       onLockRef.current?.(true);
       currentRef.current = next;
       setCurrent(next);
       onCurrentRef.current?.(next);
 
+      const sections = sectionEls.current;
+      const inners = innerEls.current;
+      const forward = dir > 0;
+
+      // z-index della coppia: sopra va la card che COPRE durante lo scorrimento.
+      // Avanti → l'entrante sale sopra l'uscente. Indietro → l'uscente scende
+      // sopra l'entrante (che si rivela dietro). Le altre restano Z_PARKED.
+      sections.forEach((el, i) => {
+        const z =
+          i === next ? Z_CURRENT : i === from ? (forward ? Z_BEHIND : Z_COVER) : Z_PARKED;
+        gsap.set(el, { zIndex: z });
+      });
+
+      // Andando INDIETRO l'entrante deve comparire da BEHIND (dietro la
+      // corrente), ma è parcheggiata BELOW: la riposiziono istantaneamente
+      // dietro l'uscente — che copre lo schermo ed è sopra (Z_COVER), quindi il
+      // salto è occluso. Andando AVANTI parte già da BELOW e sale: nessun pre-set.
+      if (!forward) {
+        gsap.set(sections[next], {
+          y: 0,
+          yPercent: BEHIND.yPercent,
+          scale: BEHIND.scale,
+          borderRadius: BEHIND.borderRadius,
+        });
+        if (inners[next]) gsap.set(inners[next], { y: BEHIND.innerY });
+      }
+
+      // Dove finisce l'uscente: dietro (avanti) o giù fuori schermo (indietro).
+      const out = forward ? BEHIND : BELOW;
+
       tlRef.current?.kill();
       const tl = gsap.timeline({
         defaults: { duration: DURATION, ease: "power3.inOut" },
         onStart: () => log(`anim START → ${next}`),
         onComplete: () => {
-          const el = sectionEls.current[next];
-          const r = el?.getBoundingClientRect();
-          log(
-            `anim DONE → current=${next} | rect top=${r?.top.toFixed(0)} h=${r?.height.toFixed(0)} | transform="${el?.style.transform}"`,
-          );
+          // Parcheggia tutte le non-correnti BELOW (istantaneo, occluso dalla
+          // corrente a scale 1): ogni step riparte così da uno stato noto e la
+          // corrente resta sopra tutto.
+          sections.forEach((el, i) => {
+            if (i === next) return;
+            gsap.set(el, {
+              y: 0,
+              yPercent: BELOW.yPercent,
+              scale: BELOW.scale,
+              borderRadius: BELOW.borderRadius,
+              zIndex: Z_PARKED,
+            });
+            if (inners[i]) gsap.set(inners[i], { y: BELOW.innerY });
+          });
+          gsap.set(sections[next], { zIndex: Z_CURRENT });
           // Non sblocca subito: entra in cooldown e avvia il timer di idle. Se
           // il momentum del trackpad continua, onWheel lo riarma e l'unlock
           // slitta finché la scrollata non è davvero ferma.
@@ -210,20 +266,23 @@ export default function ScrollSections({
         },
         onInterrupt: () => log(`anim INTERRUPTED (killed) mentre andava a ${next}`),
       });
-      sectionEls.current.forEach((el, i) => {
-        const s = resting(i - next);
-        log(
-          `  sec[${i}] target yP=${s.yPercent} scale=${s.scale} | el.tag=${el?.className} sameAsInner=${el === innerEls.current[i]}`,
-        );
-        tl.to(
-          el,
-          { yPercent: s.yPercent, scale: s.scale, borderRadius: s.borderRadius },
-          0,
-        );
-        if (innerEls.current[i]) {
-          tl.to(innerEls.current[i], { y: s.innerY, ease: "power2.inOut" }, 0);
-        }
-      });
+
+      // Entrante → CURRENT.
+      tl.to(
+        sections[next],
+        { yPercent: CURRENT.yPercent, scale: CURRENT.scale, borderRadius: CURRENT.borderRadius },
+        0,
+      );
+      if (inners[next]) tl.to(inners[next], { y: CURRENT.innerY, ease: "power2.inOut" }, 0);
+
+      // Uscente → BEHIND o BELOW.
+      tl.to(
+        sections[from],
+        { yPercent: out.yPercent, scale: out.scale, borderRadius: out.borderRadius },
+        0,
+      );
+      if (inners[from]) tl.to(inners[from], { y: out.innerY, ease: "power2.inOut" }, 0);
+
       tlRef.current = tl;
     };
 
@@ -270,7 +329,8 @@ export default function ScrollSections({
             if (el) sectionEls.current[i] = el;
           }}
           aria-hidden={i !== current}
-          style={{ zIndex: i, pointerEvents: i === current ? "auto" : "none" }}
+          // z-index è gestito da GSAP (vedi mount/step): qui solo i pointer-events.
+          style={{ pointerEvents: i === current ? "auto" : "none" }}
         >
           <div
             className="section__inner"

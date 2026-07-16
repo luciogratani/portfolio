@@ -8,6 +8,9 @@ import "../crisp-hero.css";
 import "../sections.css";
 import "../demo-site.css";
 import "../sfcc-demo-site.css";
+import "../bistro-demo-site.css";
+import "../tasko-demo-site.css";
+import "../g3-demo-site.css";
 
 export default function PortfolioLayout({
   children,

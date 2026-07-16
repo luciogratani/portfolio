@@ -26,12 +26,10 @@
   font-family: var(--font-sans);
 }
 
-/* underlay-nav.css forza globalmente un cursore custom via `cursor: url(...)`
-   su a/button: qui lo sovrascriviamo scoped, come .demo-site in demo-site.css. */
-.sfcc-demo-site a,
-.sfcc-demo-site button {
-  cursor: pointer;
-}
+/* Nessun override del cursore: a/button/CTA ereditano il cursore custom pointer
+   del sito (regola globale `a, button { cursor: url(...) }` di underlay-nav.css);
+   le aree non interattive restano sul cursore custom default. Il redirect
+   dell'intero screen è demandato a un overlay dedicato, non al click a mano. */
 
 /* ---------- Nav ciclante con underline che slitta ---------- */
 .sfcc-nav {
@@ -147,7 +145,17 @@
   background-color: var(--color-card);
   border-radius: 8px;
   overflow: hidden;
-  cursor: pointer;
+}
+
+/* Elementi interattivi NON a/button (uno <span> e un <div>): non li raggiunge
+   la regola globale, quindi assegniamo esplicitamente lo STESSO cursore custom
+   pointer del sito (underlay-nav.css righe 14-18). Solo questi due, non l'intera
+   card prodotto. */
+.sfcc-card__addbtn,
+.sfcc-cart {
+  cursor: url("https://cdn.prod.website-files.com/6708f85ff3d3cba6aff436fb/671251b212e6b71494aa67ff_cursor-pointer%402x.svg")
+      12 0,
+    pointer;
 }
 .sfcc-card__media {
   position: relative;
