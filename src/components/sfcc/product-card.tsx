@@ -16,7 +16,7 @@ export function ProductCard({ product }: { product: Product }) {
         width={product.featuredImage.width}
         height={product.featuredImage.height}
         className="size-full object-cover"
-        quality={100}
+        quality={85}
       />
 
       {/* Overlay */}

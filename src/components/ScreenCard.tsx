@@ -9,7 +9,7 @@ import { markReturnFromProject } from "@/lib/return-nav";
 
 /**
  * Card 2 — un monitor (Studio Display) il cui schermo ospiterà un componente
- * "sito" leggero e custom. Lo sfondo `hero1-j5-bg.jpg` mostra il monitor con lo
+ * "sito" leggero e custom. Lo sfondo `hero1-j5-bg.webp` mostra il monitor con lo
  * schermo spento (scuro). Il box `.screen` è posizionato con le coordinate
  * ufficiali del vettoriale, dentro uno "stage" scalato a cover (via container
  * query units): così resta incollato al monitor a qualsiasi risoluzione, senza
@@ -114,7 +114,7 @@ export default function ScreenCard({ active }: { active: boolean }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="screen-card__bg"
-          src="/hero/hero1-j5-bg.jpg"
+          src="/hero/hero1-j5-bg.webp"
           alt="Postazione con Studio Display"
           draggable={false}
         />

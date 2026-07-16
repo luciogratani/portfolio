@@ -10,7 +10,7 @@ import { markReturnFromProject } from "@/lib/return-nav";
 /**
  * Card 6 — G3 Modena (gestionale / backoffice). Riusa lo STESSO sfondo e
  * meccanismo della card 2 "GiGi" (ScreenCard): monitor Studio Display frontale
- * (`hero1-j5-bg.jpg`), box `.screen-card__screen` sulle coordinate ufficiali
+ * (`hero1-j5-bg.webp`), box `.screen-card__screen` sulle coordinate ufficiali
  * del vettoriale, power-on LCD all'ingresso, caption con reveal per-parola.
  * Cambia solo il contenuto dello schermo (G3DemoSite, il gestionale) e la
  * caption con reveal per-parola + link "Visit demo" verso /projects/g3.
@@ -97,7 +97,7 @@ export default function G3ScreenCard({ active }: { active: boolean }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="screen-card__bg"
-          src="/hero/hero1-j5-bg.jpg"
+          src="/hero/hero1-j5-bg.webp"
           alt="Postazione con Studio Display"
           draggable={false}
         />

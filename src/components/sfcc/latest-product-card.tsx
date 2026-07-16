@@ -30,7 +30,7 @@ export function LatestProductCard({
             alt={product.featuredImage.altText}
             width={1000}
             height={100}
-            quality={100}
+            quality={85}
             className="object-cover size-full"
           />
         </div>

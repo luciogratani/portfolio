@@ -3,7 +3,7 @@
 //
 // Usata da SfccScreenCard per "incollare" il mini-sito (design 1600×900,
 // rettangolo dritto) sullo schermo obliquo dello Studio Display in
-// hero2-j5-bg.jpg (quadrilatero prospettico, non un rettangolo).
+// hero2-j5-bg.webp (quadrilatero prospettico, non un rettangolo).
 //
 // Modello: u = (a*x + b*y + c) / (g*x + i*y + 1)
 //          v = (d*x + e*y + f) / (g*x + i*y + 1)

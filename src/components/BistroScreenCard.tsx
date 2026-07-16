@@ -11,7 +11,7 @@ import { rectToQuadMatrix3d, type Point } from "@/lib/homography";
 /**
  * Card 4 — MacBook Pro 16 ripreso IN PROSPETTIVA (schermo obliquo, come il
  * monitor di SfccScreenCard/card 3, NON un rettangolo dritto come in
- * ScreenCard/card 2). Lo sfondo `hero3-j5-bg.jpg` mostra il MacBook spento e
+ * ScreenCard/card 2). Lo sfondo `hero3-j5-bg.webp` mostra il MacBook spento e
  * angolato.
  *
  * Il mini-sito Vibe Bistro (BistroDemoSite) è progettato in un rettangolo
@@ -167,7 +167,7 @@ export default function BistroScreenCard({ active }: { active: boolean }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="bistro-screen-card__bg"
-          src="/hero/hero3-j5-bg.jpg"
+          src="/hero/hero3-j5-bg.webp"
           alt="MacBook Pro 16 angolato con schermo spento"
           draggable={false}
         />

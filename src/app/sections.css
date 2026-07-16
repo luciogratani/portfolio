@@ -197,7 +197,7 @@
   container-type: size;
 }
 
-/* Stage: rettangolo con l'aspect di hero2-j5-bg.jpg (6000×4500 = 4:3),
+/* Stage: rettangolo con l'aspect di hero2-j5-bg.webp (6000×4500 = 4:3),
    scalato a coprire la card e centrato, stessa tecnica di .screen-card__stage. */
 .sfcc-screen-card__stage {
   position: absolute;
@@ -307,7 +307,7 @@
 
 /* --- Card 5: Tasko in un iPad Pro orizzontale (TaskoScreenCard) ---
    Come card 2 (GiGi/ScreenCard): schermo DRITTO posizionato in % (l'iPad e'
-   ripreso parallelo, niente matrix3d). Stage a cover sul bg `hero4-j5-bg.png`
+   ripreso parallelo, niente matrix3d). Stage a cover sul bg `hero4-j5-bg.webp`
    (l'iPad spento su sfondo a nido d'ape) + `.tasko-screen-card__screen` sulle
    coordinate del vetro + `.tasko-screen-card__fit` col design fisso di
    TaskoDemoSite scalato via JS. */
@@ -319,7 +319,7 @@
   container-type: size;
 }
 
-/* Stage: rettangolo con l'aspect del bg iPad `hero4-j5-bg.png` (2250×3000 =
+/* Stage: rettangolo con l'aspect del bg iPad `hero4-j5-bg.webp` (2250×3000 =
    0.75, PORTRAIT), scalato a coprire la card e centrato — stessa tecnica di
    .sfcc-screen-card__stage ma con aspect portrait, quindi l'immagine viene
    scalata sulla LARGHEZZA della card (ritaglia sopra/sotto). L'iPad e' al

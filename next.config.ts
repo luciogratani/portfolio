@@ -3,8 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     // Next 16: le quality usate da next/image vanno dichiarate qui, altrimenti
-    // l'optimizer risponde 400. Le product card SFCC usano quality={100}.
-    qualities: [75, 100],
+    // l'optimizer risponde 400. Le product card SFCC usano quality={85}.
+    qualities: [75, 85],
     // Host esterni consentiti per next/image. Le immagini locali vanno in /public.
     remotePatterns: [
       {

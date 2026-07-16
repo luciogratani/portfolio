@@ -8,7 +8,7 @@ import TaskoDemoSite from "./tasko/TaskoDemoSite";
 import { markReturnFromProject } from "@/lib/return-nav";
 
 /**
- * Card 5 — Tasko dentro un iPad Pro orizzontale (`/hero/hero4-j5-bg.png`,
+ * Card 5 — Tasko dentro un iPad Pro orizzontale (`/hero/hero4-j5-bg.webp`,
  * device spento su sfondo a nido d'ape). Come ScreenCard/card 2 (GiGi): lo
  * schermo e' un rettangolo DRITTO (l'iPad e' ripreso parallelo, niente
  * matrix3d), posizionato in % dello stage sulle coordinate misurate del vetro
@@ -130,7 +130,7 @@ export default function TaskoScreenCard({ active }: { active: boolean }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="tasko-screen-card__bg"
-          src="/hero/hero4-j5-bg.png"
+          src="/hero/hero4-j5-bg.webp"
           alt="iPad Pro orizzontale con schermo spento"
           draggable={false}
         />

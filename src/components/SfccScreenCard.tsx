@@ -11,7 +11,7 @@ import { rectToQuadMatrix3d, type Point } from "@/lib/homography";
 /**
  * Card 3 — monitor Apple Studio Display ripreso IN PROSPETTIVA (schermo
  * obliquo, non un rettangolo dritto come in ScreenCard/card 2). Lo sfondo
- * `hero2-j5-bg.jpg` mostra il monitor spento e angolato.
+ * `hero2-j5-bg.webp` mostra il monitor spento e angolato.
  *
  * Il mini-sito SFCC (SfccDemoSite) è progettato in un rettangolo dritto
  * 1600×900 (16:9, come lo Studio Display). Per "incollarlo" al quadrilatero
@@ -165,7 +165,7 @@ export default function SfccScreenCard({ active }: { active: boolean }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="sfcc-screen-card__bg"
-          src="/hero/hero2-j5-bg.jpg"
+          src="/hero/hero2-j5-bg.webp"
           alt="Studio Display angolato con schermo spento"
           draggable={false}
         />
