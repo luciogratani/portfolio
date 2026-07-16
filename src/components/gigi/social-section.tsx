@@ -103,7 +103,7 @@ export function SocialSection() {
               className="relative aspect-square rounded-xl overflow-hidden group cursor-pointer"
             >
               <Image
-                src={post.image || "/placeholder.svg"}
+                src={post.image || "/placeholder.jpg"}
                 alt={`Instagram post ${index + 1}`}
                 fill
                 className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"

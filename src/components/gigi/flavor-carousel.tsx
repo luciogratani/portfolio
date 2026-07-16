@@ -196,7 +196,7 @@ export function FlavorCarousel() {
                       transition={{ type: "spring" as const, stiffness: 300, damping: 20 }}
                     >
                       <Image
-                        src={currentFlavor.image || "/placeholder.svg"}
+                        src={currentFlavor.image || "/placeholder.jpg"}
                         alt={currentFlavor.name}
                         fill
                         className={`object-contain ${currentFlavor.mystery ? "blur-sm grayscale" : ""}`}
