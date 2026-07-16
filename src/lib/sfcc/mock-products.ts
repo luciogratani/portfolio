@@ -3,7 +3,7 @@ import { Product } from "./types";
 // Catalogo completo: 20 prodotti unici (dal template v0-sfcc-ecommerce-template)
 // + 3 entry duplicate con categoryId "top-seller" (verde/azure/kaya) per
 // popolare home/featured, esattamente come nel template originale.
-// Immagini: SELF-CONTAINED, servite da /public/sfcc/*.png (niente CDN
+// Immagini: SELF-CONTAINED, servite da /public/sfcc/*.webp (niente CDN
 // Salesforce, che va in timeout). Per ogni prodotto abbiamo solo la
 // featuredImage in locale (fornita dall'utente), quindi `images` contiene
 // un solo elemento invece delle 2-3 varianti del template (quelle non le
@@ -29,7 +29,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Verde Leather Lounge Chair",
-      url: "/sfcc/Verde_armchair_1.png",
+      url: "/sfcc/Verde_armchair_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -42,7 +42,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Verde Leather Lounge Chair",
-        url: "/sfcc/Verde_armchair_1.png",
+        url: "/sfcc/Verde_armchair_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -63,7 +63,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Verde Leather Lounge Chair",
-      url: "/sfcc/Verde_armchair_1.png",
+      url: "/sfcc/Verde_armchair_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -76,7 +76,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Verde Leather Lounge Chair",
-        url: "/sfcc/Verde_armchair_1.png",
+        url: "/sfcc/Verde_armchair_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -97,7 +97,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Azure Folding Metal Chair",
-      url: "/sfcc/Azure_chair_1.png",
+      url: "/sfcc/Azure_chair_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -110,7 +110,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Azure Folding Metal Chair",
-        url: "/sfcc/Azure_chair_1.png",
+        url: "/sfcc/Azure_chair_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -145,7 +145,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Azure Folding Metal Chair",
-      url: "/sfcc/Azure_chair_1.png",
+      url: "/sfcc/Azure_chair_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -158,7 +158,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Azure Folding Metal Chair",
-        url: "/sfcc/Azure_chair_1.png",
+        url: "/sfcc/Azure_chair_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -193,7 +193,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Ra Round Velvet Cushion",
-      url: "/sfcc/Ra_cushion_color_yellow_1.png",
+      url: "/sfcc/Ra_cushion_color_yellow_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -206,7 +206,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Ra Round Velvet Cushion",
-        url: "/sfcc/Ra_cushion_color_yellow_1.png",
+        url: "/sfcc/Ra_cushion_color_yellow_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -251,7 +251,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Nagoya Sculptural Table Lamp",
-      url: "/sfcc/Nagoya_lamp_1.png",
+      url: "/sfcc/Nagoya_lamp_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -264,7 +264,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Nagoya Sculptural Table Lamp",
-        url: "/sfcc/Nagoya_lamp_1.png",
+        url: "/sfcc/Nagoya_lamp_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -285,7 +285,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Ranch Hide Patchwork Rug",
-      url: "/sfcc/Ranch_rug_1.png",
+      url: "/sfcc/Ranch_rug_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -298,7 +298,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Ranch Hide Patchwork Rug",
-        url: "/sfcc/Ranch_rug_1.png",
+        url: "/sfcc/Ranch_rug_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -319,7 +319,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Nest Black Pendant Lamp",
-      url: "/sfcc/Nest_lamp_1.png",
+      url: "/sfcc/Nest_lamp_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -332,7 +332,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Nest Black Pendant Lamp",
-        url: "/sfcc/Nest_lamp_1.png",
+        url: "/sfcc/Nest_lamp_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -353,7 +353,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Duna Pistachio Lounge Chair",
-      url: "/sfcc/Duna_Seat_Color_Green_2.png",
+      url: "/sfcc/Duna_Seat_Color_Green_2.webp",
       width: 1200,
       height: 1200,
     },
@@ -366,7 +366,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Duna Pistachio Lounge Chair",
-        url: "/sfcc/Duna_Seat_Color_Green_2.png",
+        url: "/sfcc/Duna_Seat_Color_Green_2.webp",
         width: 1200,
         height: 1200,
       },
@@ -411,7 +411,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Suryai Glass Table Lamp",
-      url: "/sfcc/Suryai_lamp_1.png",
+      url: "/sfcc/Suryai_lamp_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -424,7 +424,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Suryai Glass Table Lamp",
-        url: "/sfcc/Suryai_lamp_1.png",
+        url: "/sfcc/Suryai_lamp_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -445,7 +445,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Adhana Wooden Pendant Lamp",
-      url: "/sfcc/Adhana_lamp_1.png",
+      url: "/sfcc/Adhana_lamp_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -458,7 +458,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Adhana Wooden Pendant Lamp",
-        url: "/sfcc/Adhana_lamp_1.png",
+        url: "/sfcc/Adhana_lamp_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -493,7 +493,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Bliss Arched Desk Lamp",
-      url: "/sfcc/Bliss_lamp_1.png",
+      url: "/sfcc/Bliss_lamp_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -506,7 +506,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Bliss Arched Desk Lamp",
-        url: "/sfcc/Bliss_lamp_1.png",
+        url: "/sfcc/Bliss_lamp_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -541,7 +541,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Sheila Round Waterflow Rug",
-      url: "/sfcc/Sheila_rug_1.png",
+      url: "/sfcc/Sheila_rug_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -554,7 +554,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Sheila Round Waterflow Rug",
-        url: "/sfcc/Sheila_rug_1.png",
+        url: "/sfcc/Sheila_rug_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -575,7 +575,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Faun Textured Throw Pillow",
-      url: "/sfcc/Faun_pillow_1.png",
+      url: "/sfcc/Faun_pillow_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -588,7 +588,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Faun Textured Throw Pillow",
-        url: "/sfcc/Faun_pillow_1.png",
+        url: "/sfcc/Faun_pillow_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -623,7 +623,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Abba Table Lamp",
-      url: "/sfcc/Abba_lamp_1.png",
+      url: "/sfcc/Abba_lamp_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -636,7 +636,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Abba Table Lamp",
-        url: "/sfcc/Abba_lamp_1.png",
+        url: "/sfcc/Abba_lamp_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -671,7 +671,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Chief Modern Lounge Chair",
-      url: "/sfcc/Chief_seat_1.png",
+      url: "/sfcc/Chief_seat_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -684,7 +684,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Chief Modern Lounge Chair",
-        url: "/sfcc/Chief_seat_1.png",
+        url: "/sfcc/Chief_seat_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -719,7 +719,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Mika Minimalist Ceramic Planter",
-      url: "/sfcc/Mika_Pot_1.png",
+      url: "/sfcc/Mika_Pot_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -732,7 +732,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Mika Minimalist Ceramic Planter",
-        url: "/sfcc/Mika_Pot_1.png",
+        url: "/sfcc/Mika_Pot_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -753,7 +753,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Memphis Marble Pattern Rug",
-      url: "/sfcc/Memphis_rug_1.png",
+      url: "/sfcc/Memphis_rug_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -766,7 +766,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Memphis Marble Pattern Rug",
-        url: "/sfcc/Memphis_rug_1.png",
+        url: "/sfcc/Memphis_rug_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -787,7 +787,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Kaya Ceramic Humidifier",
-      url: "/sfcc/Kaya_humidifier_1.png",
+      url: "/sfcc/Kaya_humidifier_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -800,7 +800,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Kaya Ceramic Humidifier",
-        url: "/sfcc/Kaya_humidifier_1.png",
+        url: "/sfcc/Kaya_humidifier_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -821,7 +821,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Kaya Ceramic Humidifier",
-      url: "/sfcc/Kaya_humidifier_1.png",
+      url: "/sfcc/Kaya_humidifier_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -834,7 +834,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Kaya Ceramic Humidifier",
-        url: "/sfcc/Kaya_humidifier_1.png",
+        url: "/sfcc/Kaya_humidifier_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -855,7 +855,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Alloy Plywood Side Chair",
-      url: "/sfcc/Alloy_chair_1.png",
+      url: "/sfcc/Alloy_chair_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -868,7 +868,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Alloy Plywood Side Chair",
-        url: "/sfcc/Alloy_chair_1.png",
+        url: "/sfcc/Alloy_chair_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -903,7 +903,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Soda Fluid Shape Rug",
-      url: "/sfcc/Soda_rug_1.png",
+      url: "/sfcc/Soda_rug_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -916,7 +916,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Soda Fluid Shape Rug",
-        url: "/sfcc/Soda_rug_1.png",
+        url: "/sfcc/Soda_rug_1.webp",
         width: 1200,
         height: 1200,
       },
@@ -937,7 +937,7 @@ export const mockProducts: Product[] = [
     tags: [],
     featuredImage: {
       altText: "Pomme Shell Armchair",
-      url: "/sfcc/Pomme_chair_1.png",
+      url: "/sfcc/Pomme_chair_1.webp",
       width: 1200,
       height: 1200,
     },
@@ -950,7 +950,7 @@ export const mockProducts: Product[] = [
     images: [
       {
         altText: "Pomme Shell Armchair",
-        url: "/sfcc/Pomme_chair_1.png",
+        url: "/sfcc/Pomme_chair_1.webp",
         width: 1200,
         height: 1200,
       },
