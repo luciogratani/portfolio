@@ -153,10 +153,15 @@ export default function CrispHero({
       );
     }
 
+    // fromTo con valore d'arrivo ESPLICITO, non from: il cleanup qui sotto
+    // uccide i tween ma lascia gli stili inline, quindi al secondo mount di
+    // StrictMode un `from` rileggerebbe yPercent 150 come valore d'arrivo e
+    // animerebbe 150 → 150 (no-op: thumb ritagliate dall'overflow della nav).
     if (sliderNav.length) {
-      tl.from(
+      tl.fromTo(
         sliderNav,
-        { yPercent: 150, stagger: 0.05, ease: "expo.out", duration: 1 },
+        { yPercent: 150 },
+        { yPercent: 0, stagger: 0.05, ease: "expo.out", duration: 1 },
         "-=0.9",
       );
     }
@@ -169,10 +174,12 @@ export default function CrispHero({
       );
     }
 
+    // Idem: `from` qui restava bloccato a opacity 0 → 0 (titolo mai visibile).
     if (smallElements.length) {
-      tl.from(
+      tl.fromTo(
         smallElements,
-        { opacity: 0, ease: "power1.inOut", duration: 0.2 },
+        { opacity: 0 },
+        { opacity: 1, ease: "power1.inOut", duration: 0.2 },
         "< 0.15",
       );
     }
