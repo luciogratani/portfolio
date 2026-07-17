@@ -1,6 +1,6 @@
 "use client";
 
-import { Children, useEffect, useRef, useState } from "react";
+import { Children, useEffect, useImperativeHandle, useRef, useState } from "react";
 import gsap from "gsap";
 
 /**
@@ -68,6 +68,13 @@ const Z_BEHIND = 9; // uscente che finisce dietro la corrente (andando avanti)
 const Z_CURRENT = 10; // card a fuoco / entrante
 const Z_COVER = 11; // uscente che scende COPRENDO l'entrante (andando indietro)
 
+// Handle imperativo esposto via ref (React 19: `ref` è una prop normale, niente
+// forwardRef). Usato dal menu per saltare a una sezione specifica senza
+// duplicare la macchina a stati di `step()`.
+export type ScrollSectionsHandle = {
+  goTo: (index: number) => void;
+};
+
 type Props = {
   enabled: boolean;
   // Scheda da cui partire al mount (rientro da un progetto): posiziona subito le
@@ -76,6 +83,7 @@ type Props = {
   onLockChange?: (locked: boolean) => void;
   onCurrentChange?: (index: number) => void;
   children: React.ReactNode;
+  ref?: React.Ref<ScrollSectionsHandle>;
 };
 
 export default function ScrollSections({
@@ -84,6 +92,7 @@ export default function ScrollSections({
   onLockChange,
   onCurrentChange,
   children,
+  ref,
 }: Props) {
   const items = Children.toArray(children);
   const count = items.length;
@@ -103,6 +112,9 @@ export default function ScrollSections({
   const onLockRef = useRef(onLockChange);
   const onCurrentRef = useRef(onCurrentChange);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
+  // `step` vive dentro l'effetto sotto (chiuso su wheel/keydown): lo specchio qui
+  // per poterlo richiamare anche da `goTo` (menu), senza duplicare la logica.
+  const stepRef = useRef<(dir: number) => void>(() => {});
 
   useEffect(() => {
     enabledRef.current = enabled;
@@ -179,6 +191,28 @@ export default function ScrollSections({
     // initialIndex è stabile (deciso una volta al mount di UnderlayNav): di fatto
     // questo effetto resta un mount unico.
   }, [initialIndex]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      goTo: (index: number) => {
+        // No-op se il carosello è bloccato (step in corso) o disabilitato: stessa
+        // guardia di `step()`, non la aggiro.
+        if (!enabledRef.current || lockedRef.current || count < 2) return;
+        const from = currentRef.current;
+        if (index === from) return;
+        // Delta con direzione più breve: il carosello cicla, quindi da 0 a
+        // count-1 conviene fare -1 (indietro) invece di +(count-1) (avanti).
+        // Normalizzato in (-count/2, count/2].
+        let delta = (index - from) % count;
+        if (delta > count / 2) delta -= count;
+        else if (delta < -count / 2) delta += count;
+        if (delta === 0) return;
+        stepRef.current(delta);
+      },
+    }),
+    [count],
+  );
 
   useEffect(() => {
     // Riapre lo step solo dopo WHEEL_IDLE ms senza nuovi eventi: ogni wheel in
@@ -285,6 +319,8 @@ export default function ScrollSections({
 
       tlRef.current = tl;
     };
+
+    stepRef.current = step;
 
     const onWheel = (e: WheelEvent) => {
       if (!enabledRef.current || Math.abs(e.deltaY) < 2) return;

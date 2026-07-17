@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import gsap from "gsap";
 import { CustomEase } from "gsap/CustomEase";
 import CrispHero from "./CrispHero";
@@ -9,8 +10,21 @@ import SfccScreenCard from "./SfccScreenCard";
 import BistroScreenCard from "./BistroScreenCard";
 import TaskoScreenCard from "./TaskoScreenCard";
 import G3ScreenCard from "./G3ScreenCard";
-import ScrollSections from "./ScrollSections";
+import ScrollSections, { type ScrollSectionsHandle } from "./ScrollSections";
 import { peekReturn, clearReturn, saveCurrentSection } from "@/lib/return-nav";
+
+// Voci del menu mappate 1:1 sull'ordine dei figli di <ScrollSections> in fondo
+// al componente (0 = hero, 1-5 = card). Nomi presi dalle caption reali di ogni
+// *ScreenCard (screen-card__caption-name), abbreviati dove la caption ha un
+// sottotitolo lungo.
+const NAV_SECTIONS: { index: number; label: string }[] = [
+  { index: 0, label: "Home" },
+  { index: 1, label: "GiGi" },
+  { index: 2, label: "SFCC" },
+  { index: 3, label: "Vibe Bistro" },
+  { index: 4, label: "Tasko" },
+  { index: 5, label: "G3 Modena" },
+];
 
 /**
  * Fixed Underlay Navigation — port del pen Osmo (https://osmo.supply/)
@@ -32,6 +46,12 @@ export default function UnderlayNav() {
   const [currentSection, setCurrentSection] = useState(0);
   // True mentre è in corso uno step di scroll → il toggle menu è bloccato.
   const scrollLockedRef = useRef(false);
+  // Handle imperativo di ScrollSections (goTo) e ponte verso la chiusura del
+  // menu: una voce del menu deve chiudere il pannello e SOLO a chiusura
+  // conclusa (onComplete/onReverseComplete della sua timeline) far scattare il
+  // salto, altrimenti il lock dello scroll e quello del toggle si accavallano.
+  const scrollSectionsRef = useRef<ScrollSectionsHandle>(null);
+  const closeThenGoToRef = useRef<(index: number) => void>(() => {});
   // Versione in state dello stesso lock: serve a far partire effetti (es. il
   // power-on di ScreenCard) solo a transizione conclusa, non allo start dello step.
   const [scrollLocked, setScrollLocked] = useState(false);
@@ -206,6 +226,29 @@ export default function UnderlayNav() {
 
     buildTimeline();
 
+    // Chiude il menu (se aperto) e rimanda il salto di sezione a chiusura
+    // conclusa. `toggle()` sceglie da sola reverse()/play() in base a
+    // `tl.time()`: leggiamo la STESSA condizione qui PRIMA di chiamarla per
+    // sapere quale evento della timeline segna la fine (onReverseComplete se
+    // sta tornando a 0, onComplete se sta proseguendo verso la coda "chiusa").
+    // Nessuno dei due eventi è già cablato altrove su `tl` → sicuro attaccarli
+    // al volo e ripulirli subito dopo lo sparo.
+    function closeThenGoTo(index: number) {
+      if (scrollLockedRef.current) return;
+      if (!isOpen) {
+        scrollSectionsRef.current?.goTo(index);
+        return;
+      }
+      const closingViaReverse = tl.time() < enterEndTime;
+      const event = closingViaReverse ? "onReverseComplete" : "onComplete";
+      toggle();
+      tl.eventCallback(event, () => {
+        tl.eventCallback(event, null);
+        scrollSectionsRef.current?.goTo(index);
+      });
+    }
+    closeThenGoToRef.current = closeThenGoTo;
+
     const onToggleClick = () => toggle();
     const onOverlayClick = () => {
       if (isOpen) toggle();
@@ -251,12 +294,7 @@ export default function UnderlayNav() {
       <header className="underlay-nav__header" data-loaded={loaded}>
         <div className="underlay-nav__bar">
           <div className="underlay-nav__container">
-            <a
-              href="https://www.osmo.supply?utm_source=codepen&utm_medium=pen&utm_campaign=fixed-underlay-navigation"
-              target="_blank"
-              rel="noreferrer"
-              className="underlay-nav__logo"
-            >
+            <Link href="/" className="underlay-nav__logo">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="100%"
@@ -273,7 +311,7 @@ export default function UnderlayNav() {
                   fill="#F85931"
                 />
               </svg>
-            </a>
+            </Link>
 
             <button
               type="button"
@@ -298,40 +336,23 @@ export default function UnderlayNav() {
       <nav data-underlay-nav-menu className="underlay-nav__menu">
         <div className="underlay-nav__inner">
           <ul className="underlay-nav__list">
-            <li data-reveal-l>
-              <a
-                href="#"
-                aria-current="page"
-                className="underlay-nav__link-large w--current"
-              >
-                <span className="underlay-nav__link-label">Home</span>
-              </a>
-            </li>
-            <li data-reveal-l>
-              <a href="#" className="underlay-nav__link-large">
-                <span className="underlay-nav__link-label">Projects</span>
-              </a>
-            </li>
-            <li data-reveal-l>
-              <a href="#" className="underlay-nav__link-large">
-                <span className="underlay-nav__link-label">About</span>
-              </a>
-            </li>
-            <li data-reveal-l>
-              <a href="#" className="underlay-nav__link-large">
-                <span className="underlay-nav__link-label">Services</span>
-              </a>
-            </li>
-            <li data-reveal-l>
-              <a href="#" className="underlay-nav__link-large">
-                <span className="underlay-nav__link-label">News</span>
-              </a>
-            </li>
-            <li data-reveal-l>
-              <a href="#" className="underlay-nav__link-large">
-                <span className="underlay-nav__link-label">Contact</span>
-              </a>
-            </li>
+            {NAV_SECTIONS.map(({ index, label }) => {
+              const active = currentSection === index;
+              return (
+                <li data-reveal-l key={index}>
+                  <button
+                    type="button"
+                    aria-current={active ? "true" : undefined}
+                    className={
+                      "underlay-nav__link-large" + (active ? " w--current" : "")
+                    }
+                    onClick={() => closeThenGoToRef.current(index)}
+                  >
+                    <span className="underlay-nav__link-label">{label}</span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
           <div className="underlay-nav__bottom">
             <div className="underlay-nav__bottom-col">
@@ -398,6 +419,7 @@ export default function UnderlayNav() {
 
       <main data-main>
         <ScrollSections
+          ref={scrollSectionsRef}
           enabled={loaded && !menuOpen}
           initialIndex={returnSection ?? 0}
           onLockChange={(l) => {

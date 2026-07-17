@@ -179,6 +179,14 @@ a {
   width: 100%;
   padding: .75em 1em;
   display: block;
+  /* Le voci sono <button> (salto di scroll virtuale, non un href reale): reset
+     del chrome nativo per ereditare lo stesso look degli altri link del menu. */
+  background: none;
+  border: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
 }
 
 .underlay-nav__link-large.w--current {
