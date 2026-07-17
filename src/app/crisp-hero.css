@@ -218,6 +218,27 @@ main:has(.crisp-header.is--loading) {
   font-size: 1.125em;
 }
 
+/* Titolo per-slide cliccabile: è un <button>, quindi va derubricato dai reset
+   di default del browser (bordo, sfondo, font) per restare identico al vecchio
+   <p>. L'affordance da link ricalca .screen-card__caption-link (sottolineatura
+   + hover), coerente col resto del sito. */
+.crisp-header__p--link {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+  opacity: 0.92;
+  transition: opacity 0.3s ease;
+}
+.crisp-header__p--link:hover,
+.crisp-header__p--link:focus-visible {
+  opacity: 1;
+}
+
 /* Titolo per-slide: stesso trucco anti-clipping della maschera dell'h1, così
    allunghi/accenti non vengono tagliati dal "rullo" per-parola. Prima dello
    split (nessun figlio elemento) non seleziona nulla. */

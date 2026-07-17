@@ -13,13 +13,55 @@ import { CustomEase } from "gsap/CustomEase";
 // Immagini reali del portfolio (in /public/hero). IMAGES[0] è quella che scala
 // a schermo pieno a fine loader ed è la prima slide → conviene sia ad alta ris.
 // `title` = testo mostrato nella textbox in basso per ogni slide (si aggiorna a
-// ogni cambio). Immagini e titoli sono PLACEHOLDER: da customizzare.
+// ogni cambio) ed è anche cliccabile: `section` è l'indice (1-based, vedi
+// <ScrollSections> in UnderlayNav) della card a cui salta.
+// `panFrom`/`panTo` sono i due estremi di `object-position` (asse verticale)
+// della panoramica lenta di ogni slide — vedi `startPan` più sotto. Sono per
+// immagine perché lo spazio di ritaglio disponibile dipende dall'aspect ratio:
+// card4-tasko è verticale (1800×2400) dentro un viewport ~16:9, quindi il
+// cover ha pochissimo margine verticale prima di tagliare fuori il device
+// (iPad) — la sua escursione resta volutamente più stretta delle altre.
 const IMAGES = [
-  { src: "/hero/imgi_1_cover.jpg", alt: "Immagine hero 1", title: "Titolo hero 1" },
-  { src: "/hero/imgi_2_cover.jpg", alt: "Immagine hero 2", title: "Titolo hero 2" },
-  { src: "/hero/imgi_5_cover.jpg", alt: "Immagine hero 3", title: "Titolo hero 3" },
-  { src: "/hero/imgi_6_cover.jpg", alt: "Immagine hero 4", title: "Titolo hero 4" },
-  { src: "/hero/imgi_7_cover.jpg", alt: "Immagine hero 5", title: "Titolo hero 5" },
+  {
+    src: "/hero/slide-1-gigi.webp",
+    alt: "Mockup del progetto GiGi",
+    title: "GiGi",
+    section: 1,
+    panFrom: "50% 38%",
+    panTo: "50% 62%",
+  },
+  {
+    src: "/hero/slide-2-sfcc.webp",
+    alt: "Mockup del progetto SFCC",
+    title: "SFCC",
+    section: 2,
+    panFrom: "50% 38%",
+    panTo: "50% 62%",
+  },
+  {
+    src: "/hero/slide-3-bistro.webp",
+    alt: "Mockup del progetto Vibe Bistro",
+    title: "Vibe Bistro",
+    section: 3,
+    panFrom: "50% 38%",
+    panTo: "50% 62%",
+  },
+  {
+    src: "/hero/slide-4-tasko.webp",
+    alt: "Mockup del progetto Tasko",
+    title: "Tasko",
+    section: 4,
+    panFrom: "50% 45%",
+    panTo: "50% 55%",
+  },
+  {
+    src: "/hero/slide-5-g3.webp",
+    alt: "Mockup del progetto G3 Modena",
+    title: "G3 Modena",
+    section: 5,
+    panFrom: "50% 38%",
+    panTo: "50% 62%",
+  },
 ];
 
 // Il pen Osmo è tarato ESATTAMENTE per 5 immagini: con 5, lo slot della striscia
@@ -50,15 +92,20 @@ const AUTOPLAY_MS = 5000;
  */
 export default function CrispHero({
   onLoaded,
+  onOpenPreview,
   autoplayActive = false,
   skipIntro = false,
 }: {
   onLoaded?: () => void;
+  // Click sul titolo della slide corrente: salta alla card corrispondente
+  // nella home (goTo su <ScrollSections>), NON naviga a /projects/*.
+  onOpenPreview?: (sectionIndex: number) => void;
   autoplayActive?: boolean;
   skipIntro?: boolean;
 }) {
   const rootRef = useRef<HTMLElement>(null);
   const onLoadedRef = useRef(onLoaded);
+  const onOpenPreviewRef = useRef(onOpenPreview);
   // Stato "autoplay attivo" letto dal timer (che vive nell'effect a mount unico).
   const autoplayActiveRef = useRef(autoplayActive);
   // Esposto dall'effect: azzera e fa ripartire il timer da un intervallo pieno.
@@ -68,6 +115,7 @@ export default function CrispHero({
   const skipIntroRef = useRef(skipIntro);
   useEffect(() => {
     onLoadedRef.current = onLoaded;
+    onOpenPreviewRef.current = onOpenPreview;
     autoplayActiveRef.current = autoplayActive;
   });
 
@@ -98,6 +146,14 @@ export default function CrispHero({
     const sliderNav = container.querySelectorAll<HTMLElement>(
       ".crisp-header__slider-nav > *",
     );
+
+    // Fatta girare dal `.call` di fine loader qui sotto: parte la panoramica
+    // della slide iniziale. È un'indirezione (assegnata più giù, dove la
+    // slideshow — e quindi `startPan` — viene definita) perché altrimenti la
+    // panoramica da 5s partirebbe al MOUNT, cioè mentre la slide è ancora
+    // coperta dal loader: al reveal (~4-7s dopo, a seconda della macchina)
+    // sarebbe già finita e la si vedrebbe ferma sul valore finale.
+    let firePanOnLoad: (() => void) | undefined = undefined;
 
     /* ---------- Loading timeline ---------- */
     const tl = gsap.timeline({
@@ -188,18 +244,11 @@ export default function CrispHero({
       () => {
         container.classList.remove("is--loading");
         onLoadedRef.current?.();
+        firePanOnLoad?.();
       },
       undefined,
       "+=0.45",
     );
-
-    // Skip intro (rientro da un progetto): porta la timeline del loader diretta
-    // alla fine — stato "pronto" senza animazione — così `onLoaded` scatta subito
-    // (dal .call qui sopra) e non si vede l'intro. L'hero è comunque dietro la
-    // scheda ripristinata, quindi visivamente il salto è impercettibile.
-    if (skipIntroRef.current) {
-      tl.progress(1);
-    }
 
     /* ---------- Slideshow ---------- */
     const slides = Array.from(
@@ -229,10 +278,13 @@ export default function CrispHero({
     // Titolo iniziale: split a maschera per-parola, pronto per il "rullo". Le
     // parole restano a yPercent 0 (visibili): l'ingresso iniziale lo fa già il
     // fade del loader (opacity su .crisp-header__p tra gli smallElements).
+    // `tag: "span"`: il titolo ora è un <button> (per lo swipe alla card, sotto)
+    // e span è contenuto fraseggiabile valido — il default di SplitText è
+    // <div>, che dentro un <button> sarebbe nesting HTML invalido.
     let titleSplit: SplitText | undefined;
     if (titleEl) {
       titleEl.textContent = IMAGES[current].title;
-      titleSplit = new SplitText(titleEl, { type: "words", mask: "words" });
+      titleSplit = new SplitText(titleEl, { type: "words", mask: "words", tag: "span" });
     }
     // Rullo del titolo — stessa tecnica dell'h1: le parole uscenti salgono e
     // spariscono sotto la maschera, poi il nuovo testo (ri-split) entra dal
@@ -242,7 +294,7 @@ export default function CrispHero({
       const enter = () => {
         titleSplit?.revert();
         titleEl.textContent = text;
-        titleSplit = new SplitText(titleEl, { type: "words", mask: "words" });
+        titleSplit = new SplitText(titleEl, { type: "words", mask: "words", tag: "span" });
         gsap.set(titleSplit.words, { yPercent: 110 });
         gsap.to(titleSplit.words, {
           yPercent: 0,
@@ -263,6 +315,60 @@ export default function CrispHero({
         enter();
       }
     };
+
+    // Click sul titolo → salta alla card della slide corrente (`current` è
+    // chiuso su questa closure, sempre aggiornato da `navigate`). Listener
+    // nativo (non prop React onClick) perché il testo/tag interno è gestito
+    // imperativamente da SplitText, coerente col resto del file.
+    const handleTitleClick = () => {
+      onOpenPreviewRef.current?.(IMAGES[current].section);
+    };
+    titleEl?.addEventListener("click", handleTitleClick);
+
+    // ---------- Panoramica verticale lenta (object-position) ----------
+    // Trasla `object-position` (non un transform): il box dell'<img> è grande
+    // esattamente quanto la slide (vedi .crisp-header__slider-slide-inner),
+    // quindi un yPercent lascerebbe un buco — object-position invece pesca
+    // dentro il ritaglio "cover" senza mai scoprire il bordo, e non tocca
+    // `transform`, quindi non confligge con lo xPercent del wipe (stesso
+    // elemento, proprietà diverse). Durata = intervallo dell'autoplay, così la
+    // panoramica finisce esattamente quando la slide cambia.
+    const PAN_DURATION = AUTOPLAY_MS / 1000;
+    const panTweens: Array<gsap.core.Tween | undefined> = new Array(length);
+    const startPan = (index: number) => {
+      const el = inner[index];
+      const img = IMAGES[index];
+      if (!el) return;
+      panTweens[index]?.kill();
+      panTweens[index] = gsap.fromTo(
+        el,
+        { objectPosition: img.panFrom },
+        { objectPosition: img.panTo, duration: PAN_DURATION, ease: "sine.inOut" },
+      );
+    };
+    const resetPan = (index: number) => {
+      const el = inner[index];
+      const img = IMAGES[index];
+      if (!el) return;
+      panTweens[index]?.kill();
+      panTweens[index] = undefined;
+      gsap.set(el, { objectPosition: img.panFrom });
+    };
+    // Slide iniziale: non passa da `navigate`/wipe (che la triggera on-start per
+    // le successive). La si avvia dal `.call` di fine loader (vedi
+    // `firePanOnLoad` sopra), non subito: il mount precede il reveal della
+    // slide di parecchi secondi, quindi partire qui la farebbe scorrere (ed
+    // esaurirsi) mentre è ancora coperta dal loader.
+    firePanOnLoad = () => startPan(current);
+
+    // Skip intro (rientro da un progetto): porta la timeline del loader diretta
+    // alla fine — stato "pronto" senza animazione — così `onLoaded` (e
+    // `firePanOnLoad`, appena assegnato sopra) scattano subito e non si vede
+    // l'intro. L'hero è comunque dietro la scheda ripristinata, quindi
+    // visivamente il salto è impercettibile.
+    if (skipIntroRef.current) {
+      tl.progress(1);
+    }
 
     function navigate(direction: number, targetIndex: number | null = null) {
       if (animating) return;
@@ -292,9 +398,11 @@ export default function CrispHero({
           thumbs[previous].classList.remove("is--current");
           thumbs[current].classList.add("is--current");
           rollTitle(IMAGES[current].title);
+          startPan(current);
         },
         onComplete() {
           currentSlide.classList.remove("is--current");
+          resetPan(previous);
           animating = false;
         },
       });
@@ -352,7 +460,10 @@ export default function CrispHero({
       thumbHandlers.forEach(([thumb, handler]) =>
         thumb.removeEventListener("click", handler),
       );
+      titleEl?.removeEventListener("click", handleTitleClick);
+      panTweens.forEach((t) => t?.kill());
       gsap.killTweensOf([...slides, ...inner, ...thumbs, ...isScaleUp]);
+      gsap.set(inner, { clearProps: "objectPosition" });
       gsap.set(isScaleUp, { clearProps: "width,height,transform" });
       slides.forEach((s) => s.classList.remove("is--current"));
       thumbs.forEach((t) => t.classList.remove("is--current"));
@@ -387,6 +498,7 @@ export default function CrispHero({
                 alt={img.alt}
                 data-slideshow="parallax"
                 draggable={false}
+                style={{ objectPosition: img.panFrom }}
               />
             </div>
           ))}
@@ -447,10 +559,18 @@ export default function CrispHero({
             ))}
           </div>
           {/* Ex textbox attribuzione Osmo, riusata come titolo per-slide: il
-              testo lo aggiorna il JS a ogni cambio (init + navigate). */}
-          <p className="crisp-header__p" data-slideshow="title">
+              testo lo aggiorna il JS a ogni cambio (init + navigate). È un
+              vero <button> (non un <p> con onClick su un div): il click salta
+              alla card corrispondente nella home — vedi handleTitleClick.
+              Nessun elemento block-level dentro: SplitText qui usa tag "span"
+              apposta (di default userebbe <div>, invalido dentro <button>). */}
+          <button
+            type="button"
+            className="crisp-header__p crisp-header__p--link"
+            data-slideshow="title"
+          >
             {IMAGES[0].title}
-          </p>
+          </button>
         </div>
       </div>
     </section>

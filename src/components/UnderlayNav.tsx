@@ -433,6 +433,7 @@ export default function UnderlayNav() {
         >
           <CrispHero
             onLoaded={() => setLoaded(true)}
+            onOpenPreview={(index) => closeThenGoToRef.current(index)}
             autoplayActive={loaded && currentSection === 0 && !menuOpen && !heroLeft}
             skipIntro={returnSection != null}
           />
